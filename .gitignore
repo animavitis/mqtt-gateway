@@ -1,0 +1,7 @@
+.pioenvs
+.piolibdeps
+lib
+platformio.sublime-project
+platformio.sublime-workspace
+.clang_complete
+.gcc-flags.json

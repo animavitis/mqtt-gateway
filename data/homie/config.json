@@ -1,0 +1,24 @@
+{
+  "name": "mqtt-gateway-temp",
+  "device_id": "gateway1",
+  "wifi": {
+    "ssid": "XXX",
+    "password": "XXX"
+  },
+  "mqtt": {
+    "host": "192.168.1.13",
+    "port": 1883,
+    "base_topic": "anima/",
+    "auth": false,
+    "username": "user",
+    "password": "pass"
+  },
+  "ota": {
+    "enabled": false
+  },
+  "settings": {
+    "arrayAway": "13980949,2025705",
+    "arrayHome": "2025705",
+    "channels": "pir-1:[13980949];door-1:[2025705];example:[1398097,1398100]"
+  }
+}
