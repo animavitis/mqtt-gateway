@@ -38,10 +38,10 @@ void storeValue(String currentCode){
         ReceivedSignal[o][0] = currentCode;
         ReceivedSignal[o][1] = now;
         ReceivedSignal[o][2] = alarmState;
-        Homie.getLogger() << " -- Col: value / timestamp / alarmstate" << endl;
+        Homie.getLogger() << " -- No.: value / timestamp / alarmstate" << endl;
         for (int i = 0; i < 5; i++)
         {
-                Homie.getLogger() << " -- " << String(i) << ": " << ReceivedSignal[i][0] << " / " << String(ReceivedSignal[i][1]) << " / " << String(ReceivedSignal[i][2]) << endl;
+                Homie.getLogger() << " -- " << String(i+1) << ": " << ReceivedSignal[i][0] << " / " << String(ReceivedSignal[i][1]) << " / " << String(ReceivedSignal[i][2]) << endl;
         }
 }
 // ReceivedSignal helpers
@@ -89,6 +89,7 @@ void getArrayMQTT(String value) {
 }
 
 bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
+
         Homie.getLogger() << " - rfSwitchOnHandler(range," << value << ")" << endl;
         bool result = false;
         arrayMQTT[0] = 0;     //data or address
@@ -130,6 +131,7 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                 boolean result = rfSwitchNode.setProperty("off").send(String(arrayMQTT[0]));
         }
         if (result) Homie.getLogger() << " -- 433Mhz pulseLength: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
+        delay(1500);
         return true;
 }
 void loopZrfToMqtt(){

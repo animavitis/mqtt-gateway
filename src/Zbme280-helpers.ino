@@ -69,7 +69,7 @@ void loopZsensorBME280() {
                         if(BmeTempC != persisted_bme_tempc || BME280_ALWAYS) {
                                 char bmetempc[7];
                                 dtostrf(BmeTempC,4,2,bmetempc);
-                                bme280Temp.setProperty("temperature").send(String(bmetempc));
+                                bme280Temp.setProperty("value").send(String(bmetempc));
                         }else{
                                 Homie.getLogger() << "Same Degrees C don't send it" << endl;
                         }
@@ -77,7 +77,7 @@ void loopZsensorBME280() {
                         if(BmeHum != persisted_bme_hum || BME280_ALWAYS) {
                                 char bmehum[7];
                                 dtostrf(BmeHum,4,2,bmehum);
-                                bme280Hum.setProperty("humidity").send(String(bmehum));
+                                bme280Hum.setProperty("value").send(String(bmehum));
                         }else{
                                 Homie.getLogger() << "Same Humidity don't send it" << endl;
                         }
@@ -86,7 +86,7 @@ void loopZsensorBME280() {
                         if(BmePa != persisted_bme_pa || BME280_ALWAYS) {
                                 char bmepa[7];
                                 dtostrf(BmePa,4,2,bmepa);
-                                bme280Press.setProperty("pressure").send(String(bmepa));
+                                bme280Press.setProperty("value").send(String(bmepa));
                         }else{
                                 Homie.getLogger() << "Same Pressure don't send it" << endl;
                         }
@@ -95,7 +95,7 @@ void loopZsensorBME280() {
                         if(BmeAltiM != persisted_bme_altim || BME280_ALWAYS) {
                                 char bmealtim[7];
                                 dtostrf(BmeAltiM,4,2,bmealtim);
-                                bme280Alt.setProperty("altitude").send(String(bmealtim));
+                                bme280Alt.setProperty("value").send(String(bmealtim));
                         }else{
                                 Homie.getLogger() << "Same Altitude Meter don't send it" << endl;
                         }

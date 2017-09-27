@@ -24,7 +24,7 @@
 int arrayMQTT[6] = {0,0,0,0,0,0};
 String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
 #ifdef ALARM_ACTIVE
-const String alarmStates[] = {"disarmed","armed_home","armed_away","pending","triggered"};
+const String alarmStates[5] = {"disarmed","armed_home","armed_away","pending","triggered"};
 String alarmStateOld = alarmStates[0];
 String alarmState = alarmStates[0];
 String alarmStateTarget = alarmStates[0];
@@ -85,14 +85,14 @@ HomieNode rfSwitchNode("toRF", "switch");
 HomieNode receiverNode("toMQTT", "switch");
 #endif
 #ifdef BME280_ACTIVE
-HomieNode bme280Temp("BME280", "temperature");
-HomieNode bme280Hum("BME280", "humidity");
-HomieNode bme280Press("BME280", "pressure");
-HomieNode bme280Alt("BME280", "altitude");
+HomieNode bme280Temp("temperature", "temperature");
+HomieNode bme280Hum("humidity", "humidity");
+HomieNode bme280Press("pressure", "pressure");
+HomieNode bme280Alt("altitude", "altitude");
 #endif
 #ifdef DHT_ACTIVE
-HomieNode dhtTemp("DHT", "temperature");
-HomieNode dhtHum("DHT", "humidity");
+HomieNode dhtTemp("temperature", "temperature");
+HomieNode dhtHum("humidity", "humidity");
 #endif
 
 // HomieSetting<long> temperatureIntervalSetting("temperatureInterval", "The temperature interval in seconds");
@@ -105,14 +105,14 @@ HomieSetting<const char*> sensorArrayHomeSetting("arrayHome", "list of sensor fo
 
 void setupHandler() {
   #ifdef DHT_ACTIVE
-        dhtTemp.setProperty("temperature/unit").send("C");
-        dhtHum.setProperty("humidity/unit").send("%");
+        dhtTemp.setProperty("unit").send("C");
+        dhtHum.setProperty("unit").send("%");
   #endif
   #ifdef BME280_ACTIVE
-        bme280Temp.setProperty("temperature/unit").send("C");
-        bme280Hum.setProperty("humidity/unit").send("%");
-        bme280Press.setProperty("pressure/unit").send("Pa");
-        bme280Alt.setProperty("altitude/unit").send("M");
+        bme280Temp.setProperty("unit").send("C");
+        bme280Hum.setProperty("unit").send("%");
+        bme280Press.setProperty("unit").send("Pa");
+        bme280Alt.setProperty("unit").send("M");
   #endif
   #ifdef ALARM_ACTIVE
         getSensorArrayAway();
@@ -175,20 +175,20 @@ void setup() {
         rfSwitchNode.advertise("off").settable(rfSwitchOnHandler);
         #endif
         #ifdef BME280_ACTIVE
-        bme280Temp.advertise("temperature/unit");
-        bme280Temp.advertise("temperature");
-        bme280Press.advertise("pressure/unit");
-        bme280Press.advertise("pressure");
-        bme280Hum.advertise("humidity/unit");
-        bme280Hum.advertise("humidity");
-        bme280Alt.advertise("altitude/unit");
-        bme280Alt.advertise("altitude");
+        bme280Temp.advertise("unit");
+        bme280Temp.advertise("value");
+        bme280Press.advertise("unit");
+        bme280Press.advertise("value");
+        bme280Hum.advertise("unit");
+        bme280Hum.advertise("value");
+        bme280Alt.advertise("unit");
+        bme280Alt.advertise("value");
         #endif
         #ifdef DHT_ACTIVE
-        dhtTemp.advertise("temperature/unit");
-        dhtTemp.advertise("temperature");
-        dhtHum.advertise("humidity/unit");
-        dhtHum.advertise("humidity");
+        dhtTemp.advertise("unit");
+        dhtTemp.advertise("value");
+        dhtHum.advertise("unit");
+        dhtHum.advertise("value");
         #endif
         Homie.onEvent(onHomieEvent);
         mqttClient.onMessage(onMqttMessage);

@@ -5,6 +5,30 @@ void loopZalarm() {
                 alarmNode.setProperty("state").send(alarmState);
                 Homie.getLogger() << " - alarm status: " << alarmState << endl;
                 initialAlarmState = 1;
+
+
+
+                // open file for writing
+                File f = SPIFFS.open("/f.txt", "w");
+                if (!f) {
+                        Serial.println("file open failed");
+                }
+                Serial.println("====== Writing to SPIFFS file =========");
+                // write 10 strings to file
+                f.print(alarmState);
+                Serial.println(alarmState);
+                f.close();
+
+                File g = SPIFFS.open("/f.txt", "r");
+                if (!g) {
+                        Serial.println("file open failed");
+                }
+                Serial.println("====== Reading SPIFFS file =========");
+                String line = g.readStringUntil('\n');
+                Serial.println(line + "xxx");
+                g.close();
+
+
         }
         disarmCheck();
         homeCheck();
