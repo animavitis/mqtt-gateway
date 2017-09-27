@@ -1,31 +1,31 @@
-// getChannel helper
-String getChannelByCode(const String & currentCode) {
-        String mappingConfig = channelMappingSetting.get();
-        String mapping = "";
-        String codes = "";
-        int lastIndex = 0;
-        int lastCodeIndex = 0;
-        for (int i = 0; i < mappingConfig.length(); i++) {
-                if (mappingConfig.substring(i, i + 1) == ";") {
-                        mapping = mappingConfig.substring(lastIndex, i);
-                        //                Homie.getLogger() << " - getChannelByCode("<<  currentCode << ")" << endl <<  " -- mapping: " << mapping << endl;
-                        codes = mapping.substring(mapping.indexOf(':') + 2, mapping.length() - 1);
-                        for (int j = 0; j < codes.length(); j++) {
-                                if (codes.substring(j, j + 1) == ",") {
-                                        if (currentCode.indexOf(codes.substring(lastCodeIndex, j)) > -1) {
-                                                return mapping.substring(0, mapping.indexOf(':'));;
-                                        }
-                                        codes = codes.substring(j + 1, codes.length());
-                                }
-                        }
-                        if (currentCode.indexOf(codes) > -1) {
-                                return mapping.substring(0, mapping.indexOf(':'));;
-                        }
-                        lastIndex = i + 1;
-                }
-        }
-        return "0";
-}
+// // getChannel helper
+// String getChannelByCode(const String & currentCode) {
+//         String mappingConfig = channelMappingSetting.get();
+//         String mapping = "";
+//         String codes = "";
+//         int lastIndex = 0;
+//         int lastCodeIndex = 0;
+//         for (int i = 0; i < mappingConfig.length(); i++) {
+//                 if (mappingConfig.substring(i, i + 1) == ";") {
+//                         mapping = mappingConfig.substring(lastIndex, i);
+//                         //                Homie.getLogger() << " - getChannelByCode("<<  currentCode << ")" << endl <<  " -- mapping: " << mapping << endl;
+//                         codes = mapping.substring(mapping.indexOf(':') + 2, mapping.length() - 1);
+//                         for (int j = 0; j < codes.length(); j++) {
+//                                 if (codes.substring(j, j + 1) == ",") {
+//                                         if (currentCode.indexOf(codes.substring(lastCodeIndex, j)) > -1) {
+//                                                 return mapping.substring(0, mapping.indexOf(':'));;
+//                                         }
+//                                         codes = codes.substring(j + 1, codes.length());
+//                                 }
+//                         }
+//                         if (currentCode.indexOf(codes) > -1) {
+//                                 return mapping.substring(0, mapping.indexOf(':'));;
+//                         }
+//                         lastIndex = i + 1;
+//                 }
+//         }
+//         return "0";
+// }
 // ReceivedSignal store
 void storeValue(String currentCode){
 
@@ -100,8 +100,8 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
 
         getArrayMQTT(value);
 
-//        mySwitch.setPulseLength(arrayMQTT[1]);
-        mySwitch.setProtocol(arrayMQTT[2], arrayMQTT[1]);
+        mySwitch.setPulseLength(arrayMQTT[1]);
+        mySwitch.setProtocol(arrayMQTT[2]);
 
         if (arrayMQTT[0] > 0 && arrayMQTT[4] == 0) {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] << endl;
@@ -112,7 +112,7 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                 if(arrayMQTT[5] == 1) {
                         mySwitch.switchOn(arrayMQTT[0], false, arrayMQTT[4]);
                 } else {
-                        mySwitch.switchOff(arrayMQTT[0],false, arrayMQTT[4]);
+                        mySwitch.switchOff(arrayMQTT[0], false, arrayMQTT[4]);
                 }
         }
         if (arrayMQTT[0] > 0 && arrayMQTT[3] == 1 && arrayMQTT[4] > 0) {
@@ -121,7 +121,7 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                 if(arrayMQTT[5] == 1) {
                         mySwitch.switchOn(arrayMQTT[0], false, arrayMQTT[4]);
                 } else {
-                        mySwitch.switchOff(arrayMQTT[0],false, arrayMQTT[4]);
+                        mySwitch.switchOff(arrayMQTT[0], false, arrayMQTT[4]);
                 }
         }
         if(arrayMQTT[5] == 1) {
@@ -143,9 +143,12 @@ void loopZrfToMqtt(){
           mySwitch.resetAvailable();
           String currentCode = String(data);
           if (!isAduplicate(currentCode) && currentCode!=0) {
-                  String channelId = getChannelByCode(currentCode);
-                  Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
-                  boolean result = receiverNode.setProperty("rf" + channelId).send(currentCode);
+//                  String channelId = getChannelByCode(currentCode);
+//                  Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
+                  Homie.getLogger() << " -- Code: " << currentCode << endl;
+
+                  //                  boolean result = receiverNode.setProperty("rf" + channelId).send(currentCode);
+                  boolean result = receiverNode.setProperty("rf").send(currentCode);
                   if (result) storeValue(currentCode);
           }
   }

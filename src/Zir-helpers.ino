@@ -7,9 +7,12 @@ void loopZirToMqtt() {
                 Homie.getLogger() << " -- Receiving IR signal: " << data << endl;
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
-                        String channelId = getChannelByCode(currentCode);
-                        Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
-                        boolean result = receiverNode.setProperty("ir/" + channelId).send(currentCode);
+//                        String channelId = getChannelByCode(currentCode);
+//                        Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
+                        Homie.getLogger() << " -- Code: " << currentCode << endl;
+
+//                        boolean result = receiverNode.setProperty("ir/" + channelId).send(currentCode);
+                        boolean result = receiverNode.setProperty("ir").send(currentCode);
                         if (result) storeValue(currentCode);
                 }
         }

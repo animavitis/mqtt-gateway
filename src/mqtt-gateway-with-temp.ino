@@ -53,7 +53,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 }
 void onHomieEvent(const HomieEvent& event) {
         switch(event.type) {
-        case HomieEventType::MQTT_CONNECTED:
+        case HomieEventType::MQTT_READY:
                 uint16_t packetIdSub = mqttClient.subscribe("anima/+/toMQTT/rf/+", 0);
                 Homie.getLogger() << " - Subscribing, packetId: " << packetIdSub;
                 break;
@@ -98,7 +98,7 @@ HomieNode dhtHum("DHT", "humidity");
 
 // HomieSetting<long> temperatureIntervalSetting("temperatureInterval", "The temperature interval in seconds");
 // HomieSetting<double> temperatureOffsetSetting("temperatureOffset", "The temperature offset in degrees");
-HomieSetting<const char*> channelMappingSetting("channels", "Mapping of 433MHz & IR signals to mqtt channel.");
+// HomieSetting<const char*> channelMappingSetting("channels", "Mapping of 433MHz & IR signals to mqtt channel.");
 #ifdef ALARM_ACTIVE
 HomieSetting<const char*> sensorArrayAwaySetting("arrayAway", "list of sensor for arm away");
 HomieSetting<const char*> sensorArrayHomeSetting("arrayHome", "list of sensor for arm home");
