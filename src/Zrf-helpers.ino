@@ -39,7 +39,7 @@ void storeValue(String currentCode){
         ReceivedSignal[o][1] = now;
         ReceivedSignal[o][2] = alarmState;
         Homie.getLogger() << " -- Col: value / timestamp / alarmstate" << endl;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 5; i++)
         {
                 Homie.getLogger() << " -- " << String(i) << ": " << ReceivedSignal[i][0] << " / " << String(ReceivedSignal[i][1]) << " / " << String(ReceivedSignal[i][2]) << endl;
         }
@@ -49,7 +49,7 @@ int getMin(){
         int minimum = 0;
         minimum = ReceivedSignal[0][1].toInt();
         int minindex=0;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 5; i++)
         {
                 if (ReceivedSignal[i][1].toInt() < minimum) {
                         minimum = ReceivedSignal[i][1].toInt();
@@ -61,7 +61,7 @@ int getMin(){
 //433 & IR duplicate check
 boolean isAduplicate(String value){
         //    Homie.getLogger() << " - isAduplicate("<<  value << ")" << endl;
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<5; i++) {
                 if (ReceivedSignal[i][0] == value) {
                         long now = millis();
                         if (now - ReceivedSignal[i][1].toInt() < TIME_AVOID_DUPLICATE * 1000UL) { // change

@@ -22,8 +22,7 @@
 #include <RCSwitch.h>
 #endif
 int arrayMQTT[6] = {0,0,0,0,0,0};
-String ReceivedSignal[10][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},
-                               {"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
+String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
 #ifdef ALARM_ACTIVE
 const String alarmStates[] = {"disarmed","armed_home","armed_away","pending","triggered"};
 String alarmStateOld = alarmStates[0];

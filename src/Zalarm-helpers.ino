@@ -67,8 +67,8 @@ void disarmCheck(){
 void homeCheck(){
         if (alarmState == alarmStates[1]) {
 
-                for (size_t i = 0; i < 10; i++) {
-                        for (size_t j = 0; j < 10; j++) {
+                for (size_t i = 0; i < 5; i++) {
+                        for (size_t j = 0; j < 5; j++) {
                                 if (ReceivedSignal[j][0].toInt() == arrayHome[i] &&
                                     ReceivedSignal[j][1].toInt()  > lastArmedHomeTime &&
                                     lastArmedHomeTime  > lastArmedAwayTime &&
@@ -89,8 +89,8 @@ void homeCheck(){
 void awayCheck(){
         if (alarmState == alarmStates[2]) {
 
-                for (size_t i = 0; i < 10; i++) {
-                        for (size_t j = 0; j < 10; j++) {
+                for (size_t i = 0; i < 5; i++) {
+                        for (size_t j = 0; j < 5; j++) {
                                 // Serial << ReceivedSignal[j][0].toInt() == arrayAway[i] << " if2 " << ReceivedSignal[j][1].toInt()  > lastArmedAwayTime << " arrayaway " << arrayAway[i] << " timestamp " << lastArmedAwayTime << endl;
                                 if (arrayAway[i] > 0 &&
                                     ReceivedSignal[j][0].toInt() == arrayAway[i] &&
