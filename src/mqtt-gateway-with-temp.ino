@@ -53,7 +53,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 void onHomieEvent(const HomieEvent& event) {
         switch(event.type) {
         case HomieEventType::MQTT_READY:
-                uint16_t packetIdSub = mqttClient.subscribe("anima/+/toMQTT/rf/+", 0);
+                uint16_t packetIdSub = mqttClient.subscribe("anima/+/toMQTT/rf", 0);
                 Homie.getLogger() << " - Subscribing, packetId: " << packetIdSub;
                 break;
         }
