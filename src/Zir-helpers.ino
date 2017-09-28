@@ -1,17 +1,13 @@
 #ifdef IR_ACTIVE
 void loopZirToMqtt() {
         if (irrecv.decode(&results)) {
-                //              Homie.getLogger() << " - IR loop:" << endl;
+                //Homie.getLogger() << " - IR loop:" << endl;
                 long data = results.value;
                 irrecv.resume();
                 Homie.getLogger() << " -- Receiving IR signal: " << data << endl;
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
-//                        String channelId = getChannelByCode(currentCode);
-//                        Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
                         Homie.getLogger() << " -- Code: " << currentCode << endl;
-
-//                        boolean result = receiverNode.setProperty("ir/" + channelId).send(currentCode);
                         boolean result = receiverNode.setProperty("ir").send(currentCode);
                         if (result) storeValue(currentCode);
                 }
@@ -25,9 +21,7 @@ bool irSwitchOnHandler(const HomieRange& range, const String& value) {
         arrayMQTT[3] = 0;         //not used
         arrayMQTT[4] = 0;         //not used
         arrayMQTT[5] = 0;         //not used
-
         getArrayMQTT(value);
-
         Homie.getLogger() << " -- Receiving MQTT > IR Protocol: " << arrayMQTT[1] << " value: " << arrayMQTT[0] << endl;
         boolean signalSent = false;
         if (arrayMQTT[1] == 0) {irsend.sendCOOLIX(arrayMQTT[0], 24);

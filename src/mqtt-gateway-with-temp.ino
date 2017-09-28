@@ -4,19 +4,18 @@
 #include "Zdht-config.h" // DHT Configuration
 #include "Zrf-config.h" //rf Configuration
 #include "Zalarm-config.h" // alarm Configuration
-
 #ifdef DHT_ACTIVE
-  #include <DHT.h>
+#include <DHT.h>
 #endif
 #ifdef IR_ACTIVE
-  #include <IRremoteESP8266.h>
-  #include <IRsend.h>  // Needed if you want to send IR commands.
-  #include <IRrecv.h>  // Needed if you want to receive IR commands.
+#include <IRremoteESP8266.h>
+#include <IRsend.h>  // Needed if you want to send IR commands.
+#include <IRrecv.h>  // Needed if you want to receive IR commands.
 #endif
 #ifdef BME280_ACTIVE
-  #include "Wire.h"
-  #include "SPI.h"
-  #include "SparkFunBME280.h"
+#include "Wire.h"
+#include "SPI.h"
+#include "SparkFunBME280.h"
 #endif
 #ifdef RF_ACTIVE
 #include <RCSwitch.h>
@@ -44,7 +43,7 @@ long arrayAway[10] = {0,0,0,0,0,0,0,0,0,0};
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
         Homie.getLogger() << " - Recieving toMQTT topic:" << endl;
-        Homie.getLogger() <<" -- topic: " << topic << " payload: " << payload << endl;
+        Homie.getLogger() << " -- topic: " << topic << " payload: " << payload << endl;
         long duplicteMQTT = 0;
         storeValue(payload);
 }
@@ -56,7 +55,6 @@ void onHomieEvent(const HomieEvent& event) {
                 break;
         }
 }
-
 #ifdef RF_ACTIVE
 RCSwitch mySwitch = RCSwitch();
 #endif
@@ -92,50 +90,42 @@ HomieNode bme280Alt("altitude", "altitude");
 HomieNode dhtTemp("temperature", "temperature");
 HomieNode dhtHum("humidity", "humidity");
 #endif
-
-// HomieSetting<long> temperatureIntervalSetting("temperatureInterval", "The temperature interval in seconds");
-// HomieSetting<double> temperatureOffsetSetting("temperatureOffset", "The temperature offset in degrees");
-// HomieSetting<const char*> channelMappingSetting("channels", "Mapping of 433MHz & IR signals to mqtt channel.");
 #ifdef ALARM_ACTIVE
 HomieSetting<const char*> sensorArrayAwaySetting("arrayAway", "list of sensor for arm away");
 HomieSetting<const char*> sensorArrayHomeSetting("arrayHome", "list of sensor for arm home");
 #endif
-
 void setupHandler() {
-  #ifdef DHT_ACTIVE
+        #ifdef DHT_ACTIVE
         dhtTemp.setProperty("unit").send("C");
         dhtHum.setProperty("unit").send("%");
-  #endif
-  #ifdef BME280_ACTIVE
+        #endif
+        #ifdef BME280_ACTIVE
         bme280Temp.setProperty("unit").send("C");
         bme280Hum.setProperty("unit").send("%");
         bme280Press.setProperty("unit").send("Pa");
         bme280Alt.setProperty("unit").send("M");
-  #endif
-  #ifdef ALARM_ACTIVE
+        #endif
+        #ifdef ALARM_ACTIVE
         readAlarmStateFromSpiffs();
         getSensorArrayAway();
         getSensorArrayHome();
-  #endif
+        #endif
 }
-
 void loopHandler() {
-
-  #ifdef DHT_ACTIVE
+        #ifdef DHT_ACTIVE
         loopZsensorDHT();
-  #endif
-  #ifdef BME280_ACTIVE
+        #endif
+        #ifdef BME280_ACTIVE
         loopZsensorBME280();
-  #endif
-  #ifdef RF_ACTIVE
+        #endif
+        #ifdef RF_ACTIVE
         loopZrfToMqtt();
-  #endif
-  #ifdef IR_ACTIVE
+        #endif
+        #ifdef IR_ACTIVE
         loopZirToMqtt();
-  #endif
-//        delay(50);
-}
+        #endif
 
+}
 void setup() {
         Serial.begin(115200);
         #ifdef ALARM_ACTIVE
@@ -153,7 +143,7 @@ void setup() {
         mySwitch.setRepeatTransmit(RF_EMITTER_REPEAT); //increase transmit repeat to avoid lost of rf sendings
         mySwitch.enableReceive(RF_RECEIVER_PIN); // Receiver on pin D3
         #endif
-// init Homie
+        // init Homie
         Homie_setFirmware("mqtt-gateway", "1.0.0");
         Homie.setSetupFunction(setupHandler).setLoopFunction(loopHandler);
         Homie.disableResetTrigger();
@@ -194,17 +184,19 @@ void setup() {
 }
 void loop() {
         if (Homie.isConnected()) {
-                Homie.loop();// The device is connected
+                // The device is connected
+                Homie.loop();
         } else {
-// The device is not connected
+                // The device is not connected
         }
-#ifdef ALARM_ACTIVE
+        #ifdef ALARM_ACTIVE
         loopZalarm();
-#endif
-#ifdef RF_ACTIVE
-      loopZrfToMqtt();
-#endif
-#ifdef IR_ACTIVE
-      loopZirToMqtt();
-#endif
+        #endif
+        #ifdef RF_ACTIVE
+        loopZrfToMqtt();
+        #endif
+        #ifdef IR_ACTIVE
+        loopZirToMqtt();
+        #endif
+        delay(50);
 }

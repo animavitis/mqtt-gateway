@@ -5,12 +5,6 @@ void loopZalarm() {
                 Homie.getLogger() << " - alarm status: " << alarmState << endl;
                 alarmNode.setProperty("state").send(alarmState);
                 initialAlarmState = 1;
-
-
-
-
-
-
         }
         disarmCheck();
         homeCheck();
@@ -74,7 +68,7 @@ void setAlarmState(String value){
         }
         if (value == "triggered") {
                 alarmStateOld = alarmState;
-                alarmState = alarmStates[3];
+                alarmState = alarmStates[4];
                 alarmStateTarget = alarmStates[4];
                 pendingCounter = millis();
                 pendingStatusSent = false;
