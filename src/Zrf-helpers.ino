@@ -28,7 +28,6 @@
 // }
 // ReceivedSignal store
 void storeValue(String currentCode){
-
         long now = millis();
         // find oldest value of the buffer
         int o = getMin();
@@ -73,7 +72,6 @@ boolean isAduplicate(String value){
         Homie.getLogger() << " -- not dulicated, will be sent" << endl;
         return false;
 }
-
 void getArrayMQTT(String value) {
         int value_len = value.length() + 1;
         char char_array[value_len];
@@ -135,23 +133,23 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         return true;
 }
 void loopZrfToMqtt(){
-  if (mySwitch.available()) {
-          long data = mySwitch.getReceivedValue();
-          //              Homie.getLogger() << " - 433Mhz loop:" << endl;
-          Homie.getLogger() << " -- Receiving 433Mhz value: " << mySwitch.getReceivedValue();
-          Homie.getLogger() << " bitLenght: " << mySwitch.getReceivedBitlength();
-          Homie.getLogger() << " protocol: " << mySwitch.getReceivedProtocol();
-          Homie.getLogger() << " delay: " << mySwitch.getReceivedDelay() << endl;
-          mySwitch.resetAvailable();
-          String currentCode = String(data);
-          if (!isAduplicate(currentCode) && currentCode!=0) {
+        if (mySwitch.available()) {
+                long data = mySwitch.getReceivedValue();
+                //              Homie.getLogger() << " - 433Mhz loop:" << endl;
+                Homie.getLogger() << " -- Receiving 433Mhz value: " << mySwitch.getReceivedValue();
+                Homie.getLogger() << " bitLenght: " << mySwitch.getReceivedBitlength();
+                Homie.getLogger() << " protocol: " << mySwitch.getReceivedProtocol();
+                Homie.getLogger() << " delay: " << mySwitch.getReceivedDelay() << endl;
+                mySwitch.resetAvailable();
+                String currentCode = String(data);
+                if (!isAduplicate(currentCode) && currentCode!=0) {
 //                  String channelId = getChannelByCode(currentCode);
 //                  Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
-                  Homie.getLogger() << " -- Code: " << currentCode << endl;
+                        Homie.getLogger() << " -- Code: " << currentCode << endl;
 
-                  //                  boolean result = receiverNode.setProperty("rf" + channelId).send(currentCode);
-                  boolean result = receiverNode.setProperty("rf").send(currentCode);
-                  if (result) storeValue(currentCode);
-          }
-  }
+                        //                  boolean result = receiverNode.setProperty("rf" + channelId).send(currentCode);
+                        boolean result = receiverNode.setProperty("rf").send(currentCode);
+                        if (result) storeValue(currentCode);
+                }
+        }
 }

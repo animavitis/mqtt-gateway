@@ -2,31 +2,13 @@
 void loopZalarm() {
         if (millis() > (initialAlarmStateTime + ALARM_INTERVAL * 1000UL) || initialAlarmState == 0) {
                 initialAlarmStateTime = millis();
-                alarmNode.setProperty("state").send(alarmState);
                 Homie.getLogger() << " - alarm status: " << alarmState << endl;
+                alarmNode.setProperty("state").send(alarmState);
                 initialAlarmState = 1;
 
 
 
-                // open file for writing
-                File f = SPIFFS.open("/f.txt", "w");
-                if (!f) {
-                        Serial.println("file open failed");
-                }
-                Serial.println("====== Writing to SPIFFS file =========");
-                // write 10 strings to file
-                f.print(alarmState);
-                Serial.println(alarmState);
-                f.close();
 
-                File g = SPIFFS.open("/f.txt", "r");
-                if (!g) {
-                        Serial.println("file open failed");
-                }
-                Serial.println("====== Reading SPIFFS file =========");
-                String line = g.readStringUntil('\n');
-                Serial.println(line + "xxx");
-                g.close();
 
 
         }
@@ -36,6 +18,29 @@ void loopZalarm() {
         pendingCheck();
         triggeredCheck();
 }
+
+void readAlarmStateFromSpiffs() {
+        File g = SPIFFS.open("/alarm.txt", "r");
+        if (!g) {
+                Homie.getLogger() << " -- file open failed" << endl;
+        }
+        String line = g.readStringUntil('\n');
+        alarmState = line;
+        Homie.getLogger() << " - readAlarmStateFromSpiffs()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
+        g.close();
+}
+
+void writeAlarmStateToSpiffs(String value) {
+        File f = SPIFFS.open("/alarm.txt", "w");
+        if (!f) {
+                Homie.getLogger() << " -- file write failed" << endl;
+        }
+        f.print(value);
+        Homie.getLogger() <<  " - readAlarmStateFromSpiffs()" << endl << " -- alarmState write successfully"  << endl;
+        f.close();
+}
+
+
 void setAlarmState(String value){
         if (value == "DISARM" || value == "disarmed") {
                 alarmStateOld = alarmState;
@@ -76,6 +81,7 @@ void setAlarmState(String value){
                 lastPendingTime =  millis();
         }
         alarmNode.setProperty("state").send(alarmState);
+        writeAlarmStateToSpiffs(alarmStateTarget);
         Homie.getLogger() << " - setAlarmState("<<  value << ")" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
 }
 void setAlarmTimes(){

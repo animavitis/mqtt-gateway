@@ -23,10 +23,10 @@
 #endif
 int arrayMQTT[6] = {0,0,0,0,0,0};
 String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
+String alarmState = "N/A";
 #ifdef ALARM_ACTIVE
 const String alarmStates[5] = {"disarmed","armed_home","armed_away","pending","triggered"};
 String alarmStateOld = alarmStates[0];
-String alarmState = alarmStates[0];
 String alarmStateTarget = alarmStates[0];
 long lastArmedHomeTime = 0;
 long lastPendingTime = 0;
@@ -39,8 +39,6 @@ long initialAlarmState = 0;
 long initialAlarmStateTime = 0;
 long arrayHome[10] = {0,0,0,0,0,0,0,0,0,0};
 long arrayAway[10] = {0,0,0,0,0,0,0,0,0,0};
-#else
-String alarmState = "N/A";
 #endif
 
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
@@ -115,15 +113,14 @@ void setupHandler() {
         bme280Alt.setProperty("unit").send("M");
   #endif
   #ifdef ALARM_ACTIVE
+        readAlarmStateFromSpiffs();
         getSensorArrayAway();
         getSensorArrayHome();
   #endif
 }
 
 void loopHandler() {
-  #ifdef ALARM_ACTIVE
-    loopZalarm();
-  #endif
+
   #ifdef DHT_ACTIVE
         loopZsensorDHT();
   #endif
@@ -167,7 +164,7 @@ void setup() {
         #endif
         #ifdef IR_ACTIVE
         receiverNode.advertise("ir");
-        irSwitchNode.advertise("on").settable(irSwitchOnHandler);
+        irSwitchNode.advertise("code").settable(irSwitchOnHandler);
         #endif
         #ifdef RF_ACTIVE
         receiverNode.advertise("rf");
@@ -196,5 +193,18 @@ void setup() {
         Homie.setup();
 }
 void loop() {
-        Homie.loop();
+        if (Homie.isConnected()) {
+                Homie.loop();// The device is connected
+        } else {
+// The device is not connected
+        }
+#ifdef ALARM_ACTIVE
+        loopZalarm();
+#endif
+#ifdef RF_ACTIVE
+      loopZrfToMqtt();
+#endif
+#ifdef IR_ACTIVE
+      loopZirToMqtt();
+#endif
 }

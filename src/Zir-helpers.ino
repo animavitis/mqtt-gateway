@@ -49,7 +49,7 @@ bool irSwitchOnHandler(const HomieRange& range, const String& value) {
         if (arrayMQTT[1] == 8) {irsend.sendSAMSUNG(arrayMQTT[0], 32);
                                 signalSent = true;}
         if (signalSent) {
-                boolean result = rfSwitchNode.setProperty("on").send(String(arrayMQTT[0]));
+                boolean result = irSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
                 if (result) Homie.getLogger() << " -- IR protocol: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
         }
         irrecv.enableIRIn();
