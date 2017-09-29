@@ -30,7 +30,7 @@ void writeAlarmStateToSpiffs(String value) {
                 Homie.getLogger() << " -- file write failed" << endl;
         }
         f.print(value);
-        Homie.getLogger() <<  " - readAlarmStateFromSpiffs()" << endl << " -- alarmState write successfully"  << endl;
+        Homie.getLogger() <<  " - writeAlarmStateToSpiffs()" << endl << " -- alarmState write successfully"  << endl;
         f.close();
 }
 

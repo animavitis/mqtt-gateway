@@ -112,6 +112,9 @@ void setupHandler() {
         #endif
 }
 void loopHandler() {
+        #ifdef ALARM_ACTIVE
+        loopZalarm();
+        #endif
         #ifdef DHT_ACTIVE
         loopZsensorDHT();
         #endif
@@ -124,7 +127,7 @@ void loopHandler() {
         #ifdef IR_ACTIVE
         loopZirToMqtt();
         #endif
-
+        delay(50);
 }
 void setup() {
         Serial.begin(115200);
@@ -151,6 +154,7 @@ void setup() {
         //Homie.disableLedFeedback();
         #ifdef ALARM_ACTIVE
         alarmNode.advertise("state").settable(alarmSwitchOnHandler);
+
         #endif
         #ifdef IR_ACTIVE
         receiverNode.advertise("ir");
@@ -183,20 +187,21 @@ void setup() {
         Homie.setup();
 }
 void loop() {
+        Homie.loop();
         if (Homie.isConnected()) {
                 // The device is connected
-                Homie.loop();
         } else {
                 // The device is not connected
+                #ifdef ALARM_ACTIVE
+                loopZalarm();
+                #endif
+                #ifdef RF_ACTIVE
+                loopZrfToMqtt();
+                #endif
+                #ifdef IR_ACTIVE
+                loopZirToMqtt();
+                #endif
+                delay(50);
         }
-        #ifdef ALARM_ACTIVE
-        loopZalarm();
-        #endif
-        #ifdef RF_ACTIVE
-        loopZrfToMqtt();
-        #endif
-        #ifdef IR_ACTIVE
-        loopZirToMqtt();
-        #endif
-        delay(50);
+
 }
