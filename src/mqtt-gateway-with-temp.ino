@@ -1,16 +1,18 @@
+#include "config-alarm.h" // alarm Configuration
+#include "config-bme280.h" // bme280 Configuration
+#include "config-dht.h" // DHT Configuration
+#include "config-ir.h" // bme280 Configuration
+#include "config-rf.h" //rf Configuration
+
 #include <Homie.h>
-#include "Zbme280-config.h" // bme280 Configuration
-#include "Zir-config.h" // bme280 Configuration
-#include "Zdht-config.h" // DHT Configuration
-#include "Zrf-config.h" //rf Configuration
-#include "Zalarm-config.h" // alarm Configuration
+
 #ifdef DHT_ACTIVE
 #include <DHT.h>
 #endif
 #ifdef IR_ACTIVE
 #include <IRremoteESP8266.h>
-#include <IRsend.h>  // Needed if you want to send IR commands.
-#include <IRrecv.h>  // Needed if you want to receive IR commands.
+#include <IRsend.h>
+#include <IRrecv.h>
 #endif
 #ifdef BME280_ACTIVE
 #include "Wire.h"
@@ -20,6 +22,11 @@
 #ifdef RF_ACTIVE
 #include <RCSwitch.h>
 #endif
+#ifdef RF_KAKU
+#include <NewRemoteTransmitter.h>
+#include <NewRemoteReceiver.h>
+#endif
+
 int arrayMQTT[6] = {0,0,0,0,0,0};
 String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
 String alarmState = "N/A";
@@ -58,6 +65,23 @@ void onHomieEvent(const HomieEvent& event) {
 #ifdef RF_ACTIVE
 RCSwitch mySwitch = RCSwitch();
 #endif
+
+#ifdef RF_KAKU
+struct RF2rxd
+{
+  unsigned int period;
+  unsigned long address;
+  unsigned long groupBit;
+  unsigned long unit;
+  unsigned long switchType;
+  bool hasNewData;
+};
+
+RF2rxd rf2rd;
+NewRemoteTransmitter transmitter(arrayMQTT[0], RF_EMITTER_PIN, arrayMQTT[1]);
+
+#endif
+
 #ifdef IR_ACTIVE
 IRrecv irrecv(IR_RECEIVER_PIN);
 IRsend irsend(IR_EMITTER_PIN);
@@ -127,6 +151,9 @@ void loopHandler() {
         #ifdef IR_ACTIVE
         loopZirToMqtt();
         #endif
+        #ifdef RF_KAKU
+        loopRf2ToMqtt();
+        #endif
         delay(50);
 }
 void setup() {
@@ -145,6 +172,11 @@ void setup() {
         mySwitch.enableTransmit(RF_EMITTER_PIN); // RF Transmitter
         mySwitch.setRepeatTransmit(RF_EMITTER_REPEAT); //increase transmit repeat to avoid lost of rf sendings
         mySwitch.enableReceive(RF_RECEIVER_PIN); // Receiver on pin D3
+        #endif
+        #ifdef RF_KAKU
+        NewRemoteReceiver::init(RF_RECEIVER_PIN, 2, rf2Callback);
+//        pinMode(RF_EMITTER_PIN, OUTPUT);
+//        digitalWrite(RF_EMITTER_PIN, LOW);
         #endif
         // init Homie
         Homie_setFirmware("mqtt-gateway", "1.0.0");

@@ -92,15 +92,21 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         bool result = false;
         arrayMQTT[0] = 0;     //data or address
         arrayMQTT[1] = 350;   //pulseLength
-        arrayMQTT[2] = 1;     //protocol
+        arrayMQTT[2] = -1;     //protocol for RF, DIM for RF2
         arrayMQTT[3] = 0;     //group (1-> send to all group) (only for typeE)
         arrayMQTT[4] = 0;     //unit (15 first, 14 second, 13 third) (only for typeE)
         arrayMQTT[5] = 1;     //1:set ON,2:set OFF (only for typeE)
 
         getArrayMQTT(value);
 
+        #ifdef RF_KAKU
+        NewRemoteReceiver::disable();
+        #endif
+
         mySwitch.setPulseLength(arrayMQTT[1]);
         mySwitch.setProtocol(arrayMQTT[2]);
+
+
 
         if (arrayMQTT[0] > 0 && arrayMQTT[4] == 0) {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] << endl;
@@ -109,18 +115,40 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         if (arrayMQTT[0] > 0 && arrayMQTT[3] == 0 && arrayMQTT[4] > 0) {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz Address: " << arrayMQTT[0] << " unit: "<< arrayMQTT[4] <<" group: false" << endl;
                 if(arrayMQTT[5] == 1) {
-                        mySwitch.switchOn(arrayMQTT[0], false, arrayMQTT[4]);
+
+
+                        if(arrayMQTT[2] != -1) {
+                                transmitter.sendDim(arrayMQTT[4], arrayMQTT[2]);
+                        } else {
+                                transmitter.sendUnit(arrayMQTT[4], true);
+                        }
                 } else {
-                        mySwitch.switchOff(arrayMQTT[0], false, arrayMQTT[4]);
+
+
+                        if(arrayMQTT[2] != -1) {
+                                transmitter.sendDim(arrayMQTT[4], arrayMQTT[2]);
+                        } else {
+                                transmitter.sendUnit(arrayMQTT[4], false);
+                        }
+
+
                 }
         }
         if (arrayMQTT[0] > 0 && arrayMQTT[3] == 1 && arrayMQTT[4] > 0) {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz Address: " << arrayMQTT[0] << " unit: "<< arrayMQTT[4] <<" group: true" << endl;
 
                 if(arrayMQTT[5] == 1) {
-                        mySwitch.switchOn(arrayMQTT[0], false, arrayMQTT[4]);
+                  if(arrayMQTT[2] != -1) {
+                          transmitter.sendGroupDim(arrayMQTT[2]);
+                  } else {
+                          transmitter.sendGroup(true);
+                  }
                 } else {
-                        mySwitch.switchOff(arrayMQTT[0], false, arrayMQTT[4]);
+                  if(arrayMQTT[2] != -1) {
+                          transmitter.sendGroupDim(arrayMQTT[2]);
+                  } else {
+                          transmitter.sendGroup(false);
+                  }
                 }
         }
         if(arrayMQTT[5] == 1) {
