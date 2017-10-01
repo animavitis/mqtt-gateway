@@ -1,5 +1,5 @@
 #ifdef ALARM_ACTIVE
-void loopZalarm() {
+void loopAlarm() {
         if (millis() > (initialAlarmStateTime + ALARM_INTERVAL * 1000UL) || initialAlarmState == 0) {
                 initialAlarmStateTime = millis();
                 Homie.getLogger() << " - alarm status: " << alarmState << endl;

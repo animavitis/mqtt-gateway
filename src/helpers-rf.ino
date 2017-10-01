@@ -87,7 +87,6 @@ void getArrayMQTT(String value) {
 }
 
 bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
-
         Homie.getLogger() << " - rfSwitchOnHandler(range," << value << ")" << endl;
         bool result = false;
         arrayMQTT[0] = 0;     //data or address
@@ -129,10 +128,9 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                 boolean result = rfSwitchNode.setProperty("off").send(String(arrayMQTT[0]));
         }
         if (result) Homie.getLogger() << " -- 433Mhz pulseLength: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
-        delay(1500);
         return true;
 }
-void loopZrfToMqtt(){
+void loopRfToMqtt(){
         if (mySwitch.available()) {
                 long data = mySwitch.getReceivedValue();
                 //              Homie.getLogger() << " - 433Mhz loop:" << endl;

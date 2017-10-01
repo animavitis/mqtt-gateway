@@ -1,5 +1,5 @@
 #ifdef DHT_ACTIVE
-void loopZsensorDHT() {
+void loopSensorDHT() {
         if (millis() - DHTlastSent >= DHT_INTERVAL * 1000UL || DHTlastSent == 0) {
                 //Homie.getLogger() << " - DTH loop:" << endl;
                 float humidity = dht.readHumidity();

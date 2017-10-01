@@ -1,9 +1,9 @@
 #include <Homie.h>
-#include "Zbme280-config.h" // bme280 Configuration
-#include "Zir-config.h" // bme280 Configuration
-#include "Zdht-config.h" // DHT Configuration
-#include "Zrf-config.h" //rf Configuration
-#include "Zalarm-config.h" // alarm Configuration
+#include "config-alarm.h" // alarm Configuration
+#include "config-bme280.h" // bme280 Configuration
+#include "config-dht.h" // DHT Configuration
+#include "config-ir.h" // bme280 Configuration
+#include "config-rf.h" //rf Configuration
 #ifdef DHT_ACTIVE
 #include <DHT.h>
 #endif
@@ -23,22 +23,9 @@
 int arrayMQTT[6] = {0,0,0,0,0,0};
 String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
 String alarmState = "N/A";
-#ifdef ALARM_ACTIVE
-const String alarmStates[5] = {"disarmed","armed_home","armed_away","pending","triggered"};
-String alarmStateOld = alarmStates[0];
-String alarmStateTarget = alarmStates[0];
-long lastArmedHomeTime = 0;
-long lastPendingTime = 0;
-long lastArmedAwayTime = 0;
-long lastDisarmedTime = 0;
-long lastTriggeredTime = 0;
-long pendingCounter = 0;
-bool pendingStatusSent = true;
-long initialAlarmState = 0;
-long initialAlarmStateTime = 0;
-long arrayHome[10] = {0,0,0,0,0,0,0,0,0,0};
-long arrayAway[10] = {0,0,0,0,0,0,0,0,0,0};
-#endif
+// #ifdef ALARM_ACTIVE
+//
+// #endif
 
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
@@ -113,19 +100,19 @@ void setupHandler() {
 }
 void loopHandler() {
         #ifdef ALARM_ACTIVE
-        loopZalarm();
+        loopAlarm();
         #endif
         #ifdef DHT_ACTIVE
-        loopZsensorDHT();
+        loopSensorDHT();
         #endif
         #ifdef BME280_ACTIVE
-        loopZsensorBME280();
+        loopSensorBME280();
         #endif
         #ifdef RF_ACTIVE
-        loopZrfToMqtt();
+        loopRfToMqtt();
         #endif
         #ifdef IR_ACTIVE
-        loopZirToMqtt();
+        loopIrToMqtt();
         #endif
         delay(50);
 }
@@ -135,7 +122,7 @@ void setup() {
         setAlarmTimes();
         #endif
         #ifdef BME280_ACTIVE
-        setupZsensorBME280();
+        setupSensorBME280();
         #endif
         #ifdef IR_ACTIVE
         irsend.begin();
@@ -154,7 +141,6 @@ void setup() {
         //Homie.disableLedFeedback();
         #ifdef ALARM_ACTIVE
         alarmNode.advertise("state").settable(alarmSwitchOnHandler);
-
         #endif
         #ifdef IR_ACTIVE
         receiverNode.advertise("ir");
@@ -193,13 +179,13 @@ void loop() {
         } else {
                 // The device is not connected
                 #ifdef ALARM_ACTIVE
-                loopZalarm();
+                loopAlarm();
                 #endif
                 #ifdef RF_ACTIVE
-                loopZrfToMqtt();
+                loopRfToMqtt();
                 #endif
                 #ifdef IR_ACTIVE
-                loopZirToMqtt();
+                loopIrToMqtt();
                 #endif
                 delay(50);
         }

@@ -1,5 +1,5 @@
 #ifdef IR_ACTIVE
-void loopZirToMqtt() {
+void loopIrToMqtt() {
         if (irrecv.decode(&results)) {
                 //Homie.getLogger() << " - IR loop:" << endl;
                 long data = results.value;

@@ -1,5 +1,5 @@
 #ifdef BME280_ACTIVE
-void setupZsensorBME280()
+void setupSensorBME280()
 {
         mySensor.settings.commInterface = I2C_MODE;
         mySensor.settings.I2CAddress = 0x76; // Bosch BME280 I2C Address
@@ -18,7 +18,7 @@ void setupZsensorBME280()
         delay(10); // Gives the Sensor enough time to turn on (The BME280 requires 2ms to start up)
         Homie.getLogger() << "Bosch BME280 Initialized - Result of .begin(): 0x" << mySensor.begin() << endl;
 }
-void loopZsensorBME280() {
+void loopSensorBME280() {
         if (millis() > (timebme280 + BME280_INTERVAL * 1000)) {
                 //Homie.getLogger() << " - BME280 loop:" << endl;
                 timebme280 = millis();
