@@ -104,8 +104,13 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         #endif
 
         mySwitch.setPulseLength(arrayMQTT[1]);
-        mySwitch.setProtocol(arrayMQTT[2]);
 
+        if (arrayMQTT[2] == -1) {
+                mySwitch.setProtocol(1);
+        }
+        else{
+                mySwitch.setProtocol(arrayMQTT[2]);
+        }
 
 
         if (arrayMQTT[0] > 0 && arrayMQTT[4] == 0) {
@@ -138,17 +143,17 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz Address: " << arrayMQTT[0] << " unit: "<< arrayMQTT[4] <<" group: true" << endl;
 
                 if(arrayMQTT[5] == 1) {
-                  if(arrayMQTT[2] != -1) {
-                          transmitter.sendGroupDim(arrayMQTT[2]);
-                  } else {
-                          transmitter.sendGroup(true);
-                  }
+                        if(arrayMQTT[2] != -1) {
+                                transmitter.sendGroupDim(arrayMQTT[2]);
+                        } else {
+                                transmitter.sendGroup(true);
+                        }
                 } else {
-                  if(arrayMQTT[2] != -1) {
-                          transmitter.sendGroupDim(arrayMQTT[2]);
-                  } else {
-                          transmitter.sendGroup(false);
-                  }
+                        if(arrayMQTT[2] != -1) {
+                                transmitter.sendGroupDim(arrayMQTT[2]);
+                        } else {
+                                transmitter.sendGroup(false);
+                        }
                 }
         }
         if(arrayMQTT[5] == 1) {
