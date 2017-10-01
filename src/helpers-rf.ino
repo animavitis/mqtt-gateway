@@ -1,31 +1,3 @@
-// // getChannel helper
-// String getChannelByCode(const String & currentCode) {
-//         String mappingConfig = channelMappingSetting.get();
-//         String mapping = "";
-//         String codes = "";
-//         int lastIndex = 0;
-//         int lastCodeIndex = 0;
-//         for (int i = 0; i < mappingConfig.length(); i++) {
-//                 if (mappingConfig.substring(i, i + 1) == ";") {
-//                         mapping = mappingConfig.substring(lastIndex, i);
-//                         //                Homie.getLogger() << " - getChannelByCode("<<  currentCode << ")" << endl <<  " -- mapping: " << mapping << endl;
-//                         codes = mapping.substring(mapping.indexOf(':') + 2, mapping.length() - 1);
-//                         for (int j = 0; j < codes.length(); j++) {
-//                                 if (codes.substring(j, j + 1) == ",") {
-//                                         if (currentCode.indexOf(codes.substring(lastCodeIndex, j)) > -1) {
-//                                                 return mapping.substring(0, mapping.indexOf(':'));;
-//                                         }
-//                                         codes = codes.substring(j + 1, codes.length());
-//                                 }
-//                         }
-//                         if (currentCode.indexOf(codes) > -1) {
-//                                 return mapping.substring(0, mapping.indexOf(':'));;
-//                         }
-//                         lastIndex = i + 1;
-//                 }
-//         }
-//         return "0";
-// }
 // ReceivedSignal store
 void storeValue(String currentCode){
         long now = millis();
@@ -79,7 +51,7 @@ void getArrayMQTT(String value) {
         int ipos = 0;
         char *tok = strtok(char_array, ",");
         while (tok) {
-                if (ipos < 6) {
+                if (ipos < 3) {
                         arrayMQTT[ipos++] = atoi(tok);
                 }
                 tok = strtok(NULL, ",");
@@ -92,41 +64,24 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         arrayMQTT[0] = 0;     //data or address
         arrayMQTT[1] = 350;   //pulseLength
         arrayMQTT[2] = 1;     //protocol
-        arrayMQTT[3] = 0;     //group (1-> send to all group) (only for typeE)
-        arrayMQTT[4] = 0;     //unit (15 first, 14 second, 13 third) (only for typeE)
-        arrayMQTT[5] = 1;     //1:set ON,2:set OFF (only for typeE)
 
         getArrayMQTT(value);
 
         mySwitch.setPulseLength(arrayMQTT[1]);
         mySwitch.setProtocol(arrayMQTT[2]);
 
-        if (arrayMQTT[0] > 0 && arrayMQTT[4] == 0) {
+        if (arrayMQTT[0] > 0)  {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] << endl;
-                mySwitch.send(arrayMQTT[0], 24);
-        }
-        if (arrayMQTT[0] > 0 && arrayMQTT[3] == 0 && arrayMQTT[4] > 0) {
-                Homie.getLogger() << " -- Receiving MQTT > 433Mhz Address: " << arrayMQTT[0] << " unit: "<< arrayMQTT[4] <<" group: false" << endl;
-                if(arrayMQTT[5] == 1) {
-                        mySwitch.switchOn(arrayMQTT[0], false, arrayMQTT[4]);
-                } else {
-                        mySwitch.switchOff(arrayMQTT[0], false, arrayMQTT[4]);
+                if(arrayMQTT[2] != 7) {
+                        mySwitch.send(arrayMQTT[0], 24);
+                }else{
+                        mySwitch.send(arrayMQTT[0], 32);
                 }
         }
-        if (arrayMQTT[0] > 0 && arrayMQTT[3] == 1 && arrayMQTT[4] > 0) {
-                Homie.getLogger() << " -- Receiving MQTT > 433Mhz Address: " << arrayMQTT[0] << " unit: "<< arrayMQTT[4] <<" group: true" << endl;
 
-                if(arrayMQTT[5] == 1) {
-                        mySwitch.switchOn(arrayMQTT[0], false, arrayMQTT[4]);
-                } else {
-                        mySwitch.switchOff(arrayMQTT[0], false, arrayMQTT[4]);
-                }
-        }
-        if(arrayMQTT[5] == 1) {
-                boolean result = rfSwitchNode.setProperty("on").send(String(arrayMQTT[0]));
-        } else {
-                boolean result = rfSwitchNode.setProperty("off").send(String(arrayMQTT[0]));
-        }
+
+
+        result = rfSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
         if (result) Homie.getLogger() << " -- 433Mhz pulseLength: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
         return true;
 }
@@ -141,12 +96,8 @@ void loopRfToMqtt(){
                 mySwitch.resetAvailable();
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
-//                  String channelId = getChannelByCode(currentCode);
-//                  Homie.getLogger() << " -- Code: " << currentCode << " matched to channel " << channelId << endl;
                         Homie.getLogger() << " -- Code: " << currentCode << endl;
-
-                        //                  boolean result = receiverNode.setProperty("rf" + channelId).send(currentCode);
-                        boolean result = receiverNode.setProperty("rf").send(currentCode);
+                        boolean result = rfSwitchNode.setProperty("toMQTT").send(currentCode);
                         if (result) storeValue(currentCode);
                 }
         }

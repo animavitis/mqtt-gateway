@@ -15,3 +15,4 @@ long initialAlarmState = 0;
 long initialAlarmStateTime = 0;
 long arrayHome[10] = {0,0,0,0,0,0,0,0,0,0};
 long arrayAway[10] = {0,0,0,0,0,0,0,0,0,0};
+long arrayTrigger[10] = {0,0,0,0,0,0,0,0,0,0};

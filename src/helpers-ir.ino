@@ -8,7 +8,7 @@ void loopIrToMqtt() {
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
                         Homie.getLogger() << " -- Code: " << currentCode << endl;
-                        boolean result = receiverNode.setProperty("ir").send(currentCode);
+                        boolean result = irSwitchNode.setProperty("ir").send(currentCode);
                         if (result) storeValue(currentCode);
                 }
         }
@@ -18,9 +18,7 @@ bool irSwitchOnHandler(const HomieRange& range, const String& value) {
         arrayMQTT[0] = 0;         //data or address
         arrayMQTT[1] = 1;         // IR protocol: 0:IR_COOLIX,1:IR_NEC,2:IR_Whynter,3:IR_LG,4:IR_Sony,5:IR_DISH,6:IR_RC5,7:IR_Sharp,8:IR_SAMSUNG
         arrayMQTT[2] = 0;         //not used
-        arrayMQTT[3] = 0;         //not used
-        arrayMQTT[4] = 0;         //not used
-        arrayMQTT[5] = 0;         //not used
+
         getArrayMQTT(value);
         Homie.getLogger() << " -- Receiving MQTT > IR Protocol: " << arrayMQTT[1] << " value: " << arrayMQTT[0] << endl;
         boolean signalSent = false;

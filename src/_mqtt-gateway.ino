@@ -61,11 +61,10 @@ BME280 mySensor;
 HomieNode alarmNode("alarm", "switch");
 #endif
 #ifdef IR_ACTIVE
-HomieNode irSwitchNode("toIR", "switch");
+HomieNode irSwitchNode("ir", "switch");
 #endif
 #ifdef RF_ACTIVE
-HomieNode rfSwitchNode("toRF", "switch");
-HomieNode receiverNode("toMQTT", "switch");
+HomieNode rfSwitchNode("rf", "switch");
 #endif
 #ifdef BME280_ACTIVE
 HomieNode bme280Temp("temperature", "temperature");
@@ -143,13 +142,12 @@ void setup() {
         alarmNode.advertise("state").settable(alarmSwitchOnHandler);
         #endif
         #ifdef IR_ACTIVE
-        receiverNode.advertise("ir");
+        irSwitchNode.advertise("toMQTT");
         irSwitchNode.advertise("code").settable(irSwitchOnHandler);
         #endif
         #ifdef RF_ACTIVE
-        receiverNode.advertise("rf");
-        rfSwitchNode.advertise("on").settable(rfSwitchOnHandler);
-        rfSwitchNode.advertise("off").settable(rfSwitchOnHandler);
+        rfSwitchNode.advertise("toMQTT");
+        rfSwitchNode.advertise("code").settable(rfSwitchOnHandler);
         #endif
         #ifdef BME280_ACTIVE
         bme280Temp.advertise("unit");
