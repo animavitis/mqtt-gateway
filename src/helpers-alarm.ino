@@ -145,7 +145,6 @@ void pendingCheck(){
                                 alarmNode.setProperty("state").send(alarmState);
                                 Homie.getLogger() << " - pendingCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << endl;
 
-
                                 if(alarmState == alarmStates[0]) {lastDisarmedTime = millis();}
                                 if(alarmState == alarmStates[1]) {lastArmedHomeTime = millis();}
                                 if(alarmState == alarmStates[2]) {lastArmedAwayTime = millis();}
@@ -163,43 +162,49 @@ void pendingCheck(){
 }
 void triggeredCheck(){
         if (alarmState == alarmStates[4]) {
-
                 if (millis() > (initialAlarmStateTime + (ALARM_INTERVAL * 1000UL)/4) || initialAlarmState == 0) {
                         initialAlarmStateTime = millis();
                         alarmNode.setProperty("state").send(alarmState);
+
+                        for (size_t i = 0; i < 10; i++) {
+                                if (arrayTrigger[i] > 0) {
+                                        mySwitch.send(arrayTrigger[i], 24);
+                                        delay(50);
+                                }
+                        }
+
                         Homie.getLogger() << " - triggeredCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << endl;
                         initialAlarmState = 1;
                 }
         }
 }
-void getSensorArrayAway() {
-        String str = sensorArrayAwaySetting.get();
-        int str_len = str.length() + 1;
-        char char_array[str_len];
-        str.toCharArray(char_array, str_len);
-        int ipos = 0;
-        char *tok = strtok(char_array, ",");
-        while (tok) {
-                if (ipos < 10) {
-                        arrayAway[ipos++] = atoi(tok);
-                }
-                tok = strtok(NULL, ",");
+void getAlarmArrays(){
+        DynamicJsonBuffer jsonTriggered;
+        String json = alarmArraySetting.get();
+        JsonObject& root = jsonTriggered.parseObject(json);
+        for (int i = 0; i < 10; i++)
+        {
+                arrayTrigger[i] = root["siren"][i];
+                arrayHome[i] = root["home"][i];
+                arrayAway[i] = root["away"][i];
+                  Homie.getLogger() <<  " -- test array: " << arrayTrigger[i] << " " << arrayHome[i] << "  " << arrayAway[i] << endl;
         }
 }
-void getSensorArrayHome() {
-        String str = sensorArrayHomeSetting.get();
-        int str_len = str.length() + 1;
-        char char_array[str_len];
-        str.toCharArray(char_array, str_len);
-        int ipos = 0;
-        char *tok = strtok(char_array, ",");
-        while (tok) {
-                if (ipos < 10) {
-                        arrayHome[ipos++] = atoi(tok);
-                }
-                tok = strtok(NULL, ",");
+void getAlarmButtons(){
+        DynamicJsonBuffer jsonTriggered;
+        String json = alarmButtonSetting.get();
+        JsonObject& root = jsonTriggered.parseObject(json);
+        for (int i = 0; i < 3; i++)
+        {
+                armHomeButton[i] = root["home"][i];
+                armAwayButton[i] = root["away"][i];
+                disarmButton[i] = root["disarm"][i];
+                triggerButton[i] = root["trigger"][i];
+                  Homie.getLogger() <<  " -- test buttons: " << armHomeButton[i] << "  " << armAwayButton[i] << "  " << disarmButton[i] << "  " << triggerButton[i] << endl;
+
         }
 }
+
 
 bool alarmSwitchOnHandler(const HomieRange& range, const String& value) {
         Homie.getLogger() << " - alarmSwitchOnHandler(range," << value << ")" << endl;

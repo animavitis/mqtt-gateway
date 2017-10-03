@@ -16,3 +16,7 @@ long initialAlarmStateTime = 0;
 long arrayHome[10] = {0,0,0,0,0,0,0,0,0,0};
 long arrayAway[10] = {0,0,0,0,0,0,0,0,0,0};
 long arrayTrigger[10] = {0,0,0,0,0,0,0,0,0,0};
+long armHomeButton[3] = {0,0,0};
+long armAwayButton[3] = {0,0,0};
+long disarmButton[3] = {0,0,0};
+long triggerButton[3] = {0,0,0};

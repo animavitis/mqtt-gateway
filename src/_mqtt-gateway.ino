@@ -37,7 +37,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 void onHomieEvent(const HomieEvent& event) {
         switch(event.type) {
         case HomieEventType::MQTT_READY:
-                uint16_t packetIdSub = mqttClient.subscribe("anima/+/toMQTT/rf", 0);
+                uint16_t packetIdSub = mqttClient.subscribe("anima/+/rf/toMQTT", 0);
                 Homie.getLogger() << " - Subscribing, packetId: " << packetIdSub;
                 break;
         }
@@ -77,8 +77,10 @@ HomieNode dhtTemp("temperature", "temperature");
 HomieNode dhtHum("humidity", "humidity");
 #endif
 #ifdef ALARM_ACTIVE
-HomieSetting<const char*> sensorArrayAwaySetting("arrayAway", "list of sensor for arm away");
-HomieSetting<const char*> sensorArrayHomeSetting("arrayHome", "list of sensor for arm home");
+
+HomieSetting<const char*> alarmButtonSetting("alarm buttons", "arm home, arm away, disarm, trigger buttons as JSON (example in config.json)");
+HomieSetting<const char*> alarmArraySetting("alarm Arrays", "home, away & siren sensor as JSON (example in config.json)");
+
 #endif
 void setupHandler() {
         #ifdef DHT_ACTIVE
@@ -90,11 +92,6 @@ void setupHandler() {
         bme280Hum.setProperty("unit").send("%");
         bme280Press.setProperty("unit").send("Pa");
         bme280Alt.setProperty("unit").send("M");
-        #endif
-        #ifdef ALARM_ACTIVE
-        readAlarmStateFromSpiffs();
-        getSensorArrayAway();
-        getSensorArrayHome();
         #endif
 }
 void loopHandler() {
@@ -117,9 +114,6 @@ void loopHandler() {
 }
 void setup() {
         Serial.begin(115200);
-        #ifdef ALARM_ACTIVE
-        setAlarmTimes();
-        #endif
         #ifdef BME280_ACTIVE
         setupSensorBME280();
         #endif
@@ -169,6 +163,12 @@ void setup() {
         mqttClient.onMessage(onMqttMessage);
         Homie_setBrand("anima");
         Homie.setup();
+        #ifdef ALARM_ACTIVE
+        readAlarmStateFromSpiffs();
+        getAlarmArrays();
+        getAlarmButtons();
+        setAlarmTimes();
+        #endif
 }
 void loop() {
         Homie.loop();
@@ -187,5 +187,4 @@ void loop() {
                 #endif
                 delay(50);
         }
-
 }
