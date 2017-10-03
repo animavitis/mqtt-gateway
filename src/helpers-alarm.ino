@@ -6,11 +6,7 @@ void loopAlarm() {
                 alarmNode.setProperty("state").send(alarmState);
                 initialAlarmState = 1;
         }
-        disarmCheck();
-        homeCheck();
-        awayCheck();
-        pendingCheck();
-        triggeredCheck();
+
 }
 
 void readAlarmStateFromSpiffs() {
@@ -85,53 +81,36 @@ void setAlarmTimes(){
         lastDisarmedTime = millis();
         lastTriggeredTime = millis();
 }
-void disarmCheck(){
+void disarmCheck(long currentCodeLong){
         if (alarmState == alarmStates[0]) {  }
 }
-void homeCheck(){
+void homeCheck(long currentCodeLong){
         if (alarmState == alarmStates[1]) {
                 for (size_t i = 0; i < 10; i++) {
-                        for (size_t j = 0; j < 5; j++) {
-                                if (ReceivedSignal[j][0].toInt() == arrayHome[i] &&
-                                    ReceivedSignal[j][1].toInt()  > lastArmedHomeTime &&
-                                    lastArmedHomeTime  > lastArmedAwayTime &&
-                                    lastArmedHomeTime  > lastDisarmedTime &&
-                                    lastArmedHomeTime  > lastPendingTime
-                                    ) {
-                                        alarmStateOld = alarmState;
-                                        alarmState = alarmStates[3];
-                                        alarmStateTarget = alarmStates[4];
-                                        pendingCounter = millis();
-                                        pendingStatusSent = false;
-                                        Homie.getLogger() << " - homeCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
-                                }
+                        if (currentCodeLong == arrayHome[i]) {
+                                alarmStateOld = alarmState;
+                                alarmState = alarmStates[3];
+                                alarmStateTarget = alarmStates[4];
+                                pendingCounter = millis();
+                                pendingStatusSent = false;
+                                Homie.getLogger() << " - homeCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
                         }
                 }
         }
 }
-void awayCheck(){
+void awayCheck(long currentCodeLong){
         if (alarmState == alarmStates[2]) {
 
                 for (size_t i = 0; i < 10; i++) {
-                        for (size_t j = 0; j < 5; j++) {
-                                // Serial << ReceivedSignal[j][0].toInt() == arrayAway[i] << " if2 " << ReceivedSignal[j][1].toInt()  > lastArmedAwayTime << " arrayaway " << arrayAway[i] << " timestamp " << lastArmedAwayTime << endl;
-                                if (arrayAway[i] > 0 &&
-                                    ReceivedSignal[j][0].toInt() == arrayAway[i] &&
-                                    ReceivedSignal[j][1].toInt()  > lastArmedAwayTime &&
-                                    lastArmedAwayTime  > lastArmedHomeTime &&
-                                    lastArmedAwayTime  > lastDisarmedTime &&
-                                    lastArmedAwayTime  > lastPendingTime
-                                    ) {
-                                        //                Serial << ReceivedSignal[j][0].toInt() << " rec_timestamp " << ReceivedSignal[j][1] << " arrayaway " << arrayAway[i] << " timestamp " << lastArmedAwayTime << endl;
-                                        alarmStateOld = alarmState;
-                                        alarmState = alarmStates[3];
-                                        alarmStateTarget = alarmStates[4];
-                                        pendingCounter = millis();
-                                        pendingStatusSent = false;
-                                        Homie.getLogger() << " - awayCheck()" << endl;
-                                        Homie.getLogger() << " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
-                                }
+                        if (currentCodeLong == arrayAway[i]) {
+                                alarmStateOld = alarmState;
+                                alarmState = alarmStates[3];
+                                alarmStateTarget = alarmStates[4];
+                                pendingCounter = millis();
+                                pendingStatusSent = false;
+                                Homie.getLogger() << " - awayCheck()" << endl << " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
                         }
+
                 }
         }
 }
@@ -139,11 +118,9 @@ void pendingCheck(){
         if (alarmState == alarmStates[3]) {
                 if (millis() > (pendingCounter + TIME_TO_TRIGGER * 1000UL)) {
                         if (pendingCounter > 0) {
-
                                 alarmState = alarmStateTarget;
                                 alarmNode.setProperty("state").send(alarmState);
                                 Homie.getLogger() << " - pendingCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << endl;
-
                                 if(alarmState == alarmStates[0]) {lastDisarmedTime = millis();}
                                 if(alarmState == alarmStates[1]) {lastArmedHomeTime = millis();}
                                 if(alarmState == alarmStates[2]) {lastArmedAwayTime = millis();}
@@ -164,19 +141,33 @@ void triggeredCheck(){
                 if (millis() > (initialAlarmStateTime + (ALARM_INTERVAL * 1000UL)/4) || initialAlarmState == 0) {
                         initialAlarmStateTime = millis();
                         alarmNode.setProperty("state").send(alarmState);
-
                         for (size_t i = 0; i < 10; i++) {
                                 if (arrayTrigger[i] > 0) {
                                         mySwitch.send(arrayTrigger[i], 24);
-                                        delay(50);
+                                        delay(100);
                                 }
                         }
-
                         Homie.getLogger() << " - triggeredCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << endl;
                         initialAlarmState = 1;
                 }
         }
 }
+
+void buttonsCheck(long currentCodeLong){
+        if (currentCodeLong == (armHomeButton[0] || armHomeButton[1] || armHomeButton[2])) {
+                setAlarmState("armed_home");
+        }
+        if (currentCodeLong == (armAwayButton[0] || armAwayButton[1] || armAwayButton[2])) {
+                setAlarmState("armed_away");
+        }
+        if (currentCodeLong == (disarmButton[0] || disarmButton[1] || disarmButton[2])) {
+                setAlarmState("disarmed");
+        }
+        if (currentCodeLong == (triggerButton[0] || triggerButton[1] || triggerButton[2])) {
+                setAlarmState("triggered");
+        }
+}
+
 void getAlarmArrays(){
         DynamicJsonBuffer jsonTriggered;
         String json = alarmArraySetting.get();
@@ -186,7 +177,7 @@ void getAlarmArrays(){
                 arrayTrigger[i] = root["siren"][i];
                 arrayHome[i] = root["home"][i];
                 arrayAway[i] = root["away"][i];
-                  Homie.getLogger() <<  " -- test array: " << arrayTrigger[i] << " " << arrayHome[i] << "  " << arrayAway[i] << endl;
+                // Homie.getLogger() <<  " -- test array: " << arrayTrigger[i] << " " << arrayHome[i] << "  " << arrayAway[i] << endl;
         }
 }
 void getAlarmButtons(){
@@ -199,7 +190,7 @@ void getAlarmButtons(){
                 armAwayButton[i] = root["away"][i];
                 disarmButton[i] = root["disarm"][i];
                 triggerButton[i] = root["trigger"][i];
-                  Homie.getLogger() <<  " -- test buttons: " << armHomeButton[i] << "  " << armAwayButton[i] << "  " << disarmButton[i] << "  " << triggerButton[i] << endl;
+                // Homie.getLogger() <<  " -- test buttons: " << armHomeButton[i] << "  " << armAwayButton[i] << "  " << disarmButton[i] << "  " << triggerButton[i] << endl;
 
         }
 }

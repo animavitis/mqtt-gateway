@@ -16,18 +16,12 @@ void storeValue(String currentCode){
         }
         #ifdef ALARM_ACTIVE
         long currentCodeLong = currentCode.toInt();
-        if (currentCodeLong == (armHomeButton[0] || armHomeButton[1] || armHomeButton[2])) {
-                setAlarmState("armed_home");
-        }
-        if (currentCodeLong == (armAwayButton[0] || armAwayButton[1] || armAwayButton[2])) {
-                setAlarmState("armed_away");
-        }
-        if (currentCodeLong == (disarmButton[0] || disarmButton[1] || disarmButton[2])) {
-                setAlarmState("disarmed");
-        }
-        if (currentCodeLong == (triggerButton[0] || triggerButton[1] || triggerButton[2])) {
-                setAlarmState("triggered");
-        }
+        disarmCheck(currentCodeLong);
+        homeCheck(currentCodeLong);
+        awayCheck(currentCodeLong);
+        pendingCheck();
+        triggeredCheck();
+        buttonsCheck(currentCodeLong);
         #endif
 }
 // ReceivedSignal helpers
@@ -79,12 +73,9 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         arrayMQTT[0] = 0;     //data or address
         arrayMQTT[1] = 350;   //pulseLength
         arrayMQTT[2] = 1;     //protocol
-
         getArrayMQTT(value);
-
         mySwitch.setPulseLength(arrayMQTT[1]);
         mySwitch.setProtocol(arrayMQTT[2]);
-
         if (arrayMQTT[0] > 0)  {
                 Homie.getLogger() << " -- Receiving MQTT > 433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] << endl;
                 if(arrayMQTT[2] != 7) {
@@ -93,9 +84,6 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                         mySwitch.send(arrayMQTT[0], 32);
                 }
         }
-
-
-
         result = rfSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
         if (result) Homie.getLogger() << " -- 433Mhz pulseLength: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
         return true;
@@ -112,8 +100,8 @@ void loopRfToMqtt(){
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
                         Homie.getLogger() << " -- Code: " << currentCode << endl;
-                        boolean result = rfSwitchNode.setProperty("toMQTT").send(currentCode);
-                        if (result) storeValue(currentCode);
+                        rfSwitchNode.setProperty("toMQTT").send(currentCode);
+                        storeValue(currentCode);
                 }
         }
 }

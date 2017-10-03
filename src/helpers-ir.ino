@@ -8,8 +8,8 @@ void loopIrToMqtt() {
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
                         Homie.getLogger() << " -- Code: " << currentCode << endl;
-                        boolean result = irSwitchNode.setProperty("ir").send(currentCode);
-                        if (result) storeValue(currentCode);
+                        irSwitchNode.setProperty("toMQTT").send(currentCode);
+                        storeValue(currentCode);
                 }
         }
 }
