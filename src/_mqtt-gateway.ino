@@ -23,21 +23,21 @@
 int arrayMQTT[6] = {0,0,0,0,0,0};
 String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
 String alarmState = "N/A";
-// #ifdef ALARM_ACTIVE
-//
-// #endif
 
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
         Homie.getLogger() << " - Recieving toMQTT topic:" << endl;
         Homie.getLogger() << " -- topic: " << topic << " payload: " << payload << endl;
-        long duplicteMQTT = 0;
-        storeValue(payload);
+//        long duplicteMQTT = 0;
+        if (!isAduplicate(payload) && payload!=0) {
+                Homie.getLogger() << " -- Code: " << payload << endl;
+                storeValue(payload);
+        }
 }
 void onHomieEvent(const HomieEvent& event) {
         switch(event.type) {
         case HomieEventType::MQTT_READY:
-                uint16_t packetIdSub = mqttClient.subscribe("anima/+/rf/toMQTT", 0);
+                uint16_t packetIdSub = mqttClient.subscribe("anima/+/+/toMQTT", 0);
                 Homie.getLogger() << " - Subscribing, packetId: " << packetIdSub;
                 break;
         }
@@ -79,7 +79,7 @@ HomieNode dhtHum("humidity", "humidity");
 #ifdef ALARM_ACTIVE
 
 HomieSetting<const char*> alarmButtonSetting("alarm buttons", "arm home, arm away, disarm, trigger buttons as JSON (example in config.json)");
-HomieSetting<const char*> alarmArraySetting("alarm Arrays", "home, away & siren sensor as JSON (example in config.json)");
+HomieSetting<const char*> alarmArraySetting("alarm sensors", "home, away & siren sensor as JSON (example in config.json)");
 
 #endif
 void setupHandler() {

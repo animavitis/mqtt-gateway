@@ -10,28 +10,25 @@ void storeValue(String currentCode){
         ReceivedSignal[o][1] = now;
         ReceivedSignal[o][2] = alarmState;
         Homie.getLogger() << " -- No.: value / timestamp / alarmstate" << endl;
-
-#ifdef ALARM_ACTIVE
-  long currentCodeLong = currentCode.toInt();
-
- if (currentCodeLong == (armHomeButton[0] || armHomeButton[1] || armHomeButton[2])){
-   setAlarmState("armed_home");
- }
- if (currentCodeLong == (armAwayButton[0] || armAwayButton[1] || armAwayButton[2])){
-   setAlarmState("armed_away");
- }
- if (currentCodeLong == (disarmButton[0] || disarmButton[1] || disarmButton[2])){
-   setAlarmState("disarmed");
- }
- if (currentCodeLong == (triggerButton[0] || triggerButton[1] || triggerButton[2])){
-   setAlarmState("triggered");
- }
-#endif
-
         for (int i = 0; i < 5; i++)
         {
                 Homie.getLogger() << " -- " << String(i+1) << ": " << ReceivedSignal[i][0] << " / " << String(ReceivedSignal[i][1]) << " / " << String(ReceivedSignal[i][2]) << endl;
         }
+        #ifdef ALARM_ACTIVE
+        long currentCodeLong = currentCode.toInt();
+        if (currentCodeLong == (armHomeButton[0] || armHomeButton[1] || armHomeButton[2])) {
+                setAlarmState("armed_home");
+        }
+        if (currentCodeLong == (armAwayButton[0] || armAwayButton[1] || armAwayButton[2])) {
+                setAlarmState("armed_away");
+        }
+        if (currentCodeLong == (disarmButton[0] || disarmButton[1] || disarmButton[2])) {
+                setAlarmState("disarmed");
+        }
+        if (currentCodeLong == (triggerButton[0] || triggerButton[1] || triggerButton[2])) {
+                setAlarmState("triggered");
+        }
+        #endif
 }
 // ReceivedSignal helpers
 int getMin(){
