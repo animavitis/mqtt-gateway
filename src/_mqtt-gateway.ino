@@ -21,7 +21,7 @@
 #include <RCSwitch.h>
 #endif
 int arrayMQTT[6] = {0,0,0,0,0,0};
-String ReceivedSignal[5][3] ={{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"},{"N/A", "N/A", "N/A"}};
+String ReceivedSignal[8][3] ={};
 String alarmState = "N/A";
 
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
@@ -93,6 +93,7 @@ void setupHandler() {
         bme280Press.setProperty("unit").send("Pa");
         bme280Alt.setProperty("unit").send("M");
         #endif
+
 }
 void loopHandler() {
         #ifdef ALARM_ACTIVE
@@ -110,7 +111,6 @@ void loopHandler() {
         #ifdef IR_ACTIVE
         loopIrToMqtt();
         #endif
-        delay(50);
 }
 void setup() {
         Serial.begin(115200);
@@ -163,12 +163,7 @@ void setup() {
         mqttClient.onMessage(onMqttMessage);
         Homie_setBrand("anima");
         Homie.setup();
-        #ifdef ALARM_ACTIVE
-        readAlarmStateFromSpiffs();
-        getAlarmArrays();
-        getAlarmButtons();
-        setAlarmTimes();
-        #endif
+
 }
 void loop() {
         Homie.loop();
@@ -185,6 +180,5 @@ void loop() {
                 #ifdef IR_ACTIVE
                 loopIrToMqtt();
                 #endif
-                delay(50);
         }
 }

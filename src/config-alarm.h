@@ -1,6 +1,7 @@
 #define ALARM_ACTIVE                    // comment to disable
 #define ALARM_INTERVAL 60              // in seconds
 #define TIME_TO_TRIGGER 30              // in seconds
+bool alarmInit = false;
 const String alarmStates[5] = {"disarmed","armed_home","armed_away","pending","triggered"};
 String alarmStateOld = alarmStates[0];
 String alarmStateTarget = alarmStates[0];
