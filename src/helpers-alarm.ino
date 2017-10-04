@@ -37,42 +37,37 @@ void writeAlarmStateToSpiffs(String value) {
         f.close();
 }
 
+void setAlarmStateVars(String was, String is, String willbe){
+        alarmStateOld = was;
+        alarmState = is;
+        alarmStateTarget = willbe;
+}
 
 void setAlarmState(String value){
         if (value == "DISARM" || value == "disarmed") {
-                alarmStateOld = alarmState;
-                alarmState = alarmStates[0];
-                alarmStateTarget = alarmStates[0];
+                setAlarmStateVars(alarmState, alarmStates[0], alarmStates[0]);
                 lastDisarmedTime = millis();
         }
         if (value == "ARM_HOME" || value == "armed_home") {
-                alarmStateOld = alarmState;
-                alarmState = alarmStates[3];
-                alarmStateTarget = alarmStates[1];
+                setAlarmStateVars(alarmState, alarmStates[3], alarmStates[1]);
                 pendingCounter = millis();
                 pendingStatusSent = false;
                 lastPendingTime =  millis();
         }
         if (value == "ARM_AWAY" || value == "armed_away") {
-                alarmStateOld = alarmState;
-                alarmState = alarmStates[3];
-                alarmStateTarget = alarmStates[2];
+                setAlarmStateVars(alarmState, alarmStates[3], alarmStates[2]);
                 pendingCounter = millis();
                 pendingStatusSent = false;
                 lastPendingTime =  millis();
         }
         if (value == "pending") {
-                alarmStateOld = alarmState;
-                alarmState = alarmStates[3];
-                alarmStateTarget = alarmStates[0];
+                setAlarmStateVars(alarmState, alarmStates[3], alarmStates[0]);
                 pendingCounter = millis();
                 pendingStatusSent = false;
                 lastPendingTime =  millis();
         }
         if (value == "triggered") {
-                alarmStateOld = alarmState;
-                alarmState = alarmStates[4];
-                alarmStateTarget = alarmStates[4];
+                setAlarmStateVars(alarmState, alarmStates[4], alarmStates[4]);
                 pendingCounter = millis();
                 pendingStatusSent = false;
                 lastPendingTime =  millis();
@@ -95,12 +90,11 @@ void homeCheck(long currentCodeLong){
         if (alarmState == alarmStates[1]) {
                 for (size_t i = 0; i < 10; i++) {
                         if (currentCodeLong == arrayHome[i]) {
-                                alarmStateOld = alarmState;
-                                alarmState = alarmStates[3];
-                                alarmStateTarget = alarmStates[4];
+                                setAlarmStateVars(alarmState, alarmStates[3], alarmStates[4]);
                                 pendingCounter = millis();
                                 pendingStatusSent = false;
                                 Homie.getLogger() << " - homeCheck()" << endl <<  " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
+                                break;
                         }
                 }
         }
@@ -110,12 +104,11 @@ void awayCheck(long currentCodeLong){
 
                 for (size_t i = 0; i < 10; i++) {
                         if (currentCodeLong == arrayAway[i]) {
-                                alarmStateOld = alarmState;
-                                alarmState = alarmStates[3];
-                                alarmStateTarget = alarmStates[4];
+                                setAlarmStateVars(alarmState, alarmStates[3], alarmStates[4]);
                                 pendingCounter = millis();
                                 pendingStatusSent = false;
                                 Homie.getLogger() << " - awayCheck()" << endl << " -- alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
+                                break;
                         }
 
                 }
@@ -167,29 +160,22 @@ void buttonsCheck(long currentCodeLong){
                         Homie.getLogger() << "armHomeButton:  " << currentCodeLong << endl;
                         break;
                 }
-        }
-        for (size_t i = 0; i < 3; i++) {
                 if (currentCodeLong == armAwayButton[i]) {
                         setAlarmState("armed_away");
                         Homie.getLogger() << "armHomeButton:  " << currentCodeLong << endl;
                         break;
                 }
-        }
-        for (size_t i = 0; i < 3; i++) {
                 if (currentCodeLong == disarmButton[i]) {
                         setAlarmState("disarmed");
                         Homie.getLogger() << "disarmButton:  " << currentCodeLong << endl;
                         break;
                 }
-        }
-        for (size_t i = 0; i < 3; i++) {
                 if (currentCodeLong == triggerButton[i]) {
                         setAlarmState("triggered");
                         Homie.getLogger() << "triggerButton:  " << currentCodeLong << endl;
                         break;
                 }
         }
-
 }
 
 void getAlarmArrays(){
@@ -218,7 +204,6 @@ void getAlarmButtons(){
 
         }
 }
-
 
 bool alarmSwitchOnHandler(const HomieRange& range, const String& value) {
         Homie.getLogger() << " - alarmSwitchOnHandler(range," << value << ")" << endl;
