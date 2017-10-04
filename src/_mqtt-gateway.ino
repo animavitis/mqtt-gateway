@@ -23,6 +23,17 @@
 int arrayMQTT[6] = {0,0,0,0,0,0};
 String ReceivedSignal[8][3] ={};
 String alarmState = "N/A";
+unsigned long timestamp = millis();
+
+#ifdef NTP_ACTIVE
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+WiFiUDP ntpUDP;
+// You can specify the time server pool and the offset (in seconds, can be
+// changed later with setTimeOffset() ). Additionaly you can specify the
+// update interval (in milliseconds, can be changed using setUpdateInterval() ).
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
+#endif
 
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
@@ -40,6 +51,7 @@ void onHomieEvent(const HomieEvent& event) {
                 break;
         }
 }
+
 #ifdef RF_ACTIVE
 RCSwitch mySwitch = RCSwitch();
 #endif
@@ -91,9 +103,14 @@ void setupHandler() {
         bme280Press.setProperty("unit").send("Pa");
         bme280Alt.setProperty("unit").send("M");
         #endif
-
 }
 void loopHandler() {
+        #ifdef NTP_ACTIVE
+        timeClient.update();
+        timestamp = timeClient.getEpochTime();
+        #else
+        timestamp = millis();
+        #endif
         #ifdef ALARM_ACTIVE
         loopAlarm();
         #endif
@@ -112,6 +129,9 @@ void loopHandler() {
 }
 void setup() {
         Serial.begin(115200);
+        #ifdef NTP_ACTIVE
+        timeClient.begin();
+        #endif
         #ifdef BME280_ACTIVE
         setupSensorBME280();
         #endif
@@ -175,6 +195,12 @@ void loop() {
                 #endif
                 #ifdef IR_ACTIVE
                 loopIrToMqtt();
+                #endif
+                #ifdef NTP_ACTIVE
+                timeClient.update();
+                timestamp = timeClient.getEpochTime();
+                #else
+                timestamp = millis();
                 #endif
         }
 }

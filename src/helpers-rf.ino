@@ -1,6 +1,6 @@
 // ReceivedSignal store
 void storeValue(String currentCode){
-        long now = millis();
+        long now = timestamp;
         int o = getMin();
         Homie.getLogger() << "✔ storeValue("<<  currentCode << "):" << endl;
         ReceivedSignal[o][0] = currentCode;
@@ -40,7 +40,7 @@ boolean isAduplicate(String value){
         Homie.getLogger();
         for (int i = 0; i < 8; i++) {
                 if (ReceivedSignal[i][0] == value) {
-                        long now = millis();
+                        long now = timestamp;
                         if (now - ReceivedSignal[i][1].toInt() < TIME_AVOID_DUPLICATE * 1000UL) { // change
                                 Homie.getLogger() << "✖ isAduplicate("<<  value << "): Duplicate found, don't send" << endl;
                                 return true;

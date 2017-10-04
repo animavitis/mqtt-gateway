@@ -19,8 +19,8 @@ void setupSensorBME280()
         Homie.getLogger() << "✔ Bosch BME280 Initialized - Result of .begin(): 0x" << mySensor.begin() << endl;
 }
 void loopSensorBME280() {
-        if (millis() > (timebme280 + BME280_INTERVAL * 1000)) {
-                timebme280 = millis();
+        if (timestamp > (timebme280 + BME280_INTERVAL * 1000)) {
+                timebme280 = timestamp;
                 float BmeTempC = mySensor.readTempC();
                 float BmeHum = mySensor.readFloatHumidity();
                 float BmePa = mySensor.readFloatPressure();
