@@ -16,11 +16,10 @@ void setupSensorBME280()
 // humidOverSample - Values //  0, skipped //  1 through 5, oversampling *1, *2, *4, *8, *16 respectively
         mySensor.settings.humidOverSample = 1;
         delay(10); // Gives the Sensor enough time to turn on (The BME280 requires 2ms to start up)
-        Homie.getLogger() << "- Bosch BME280 Initialized - Result of .begin(): 0x" << mySensor.begin() << endl;
+        Homie.getLogger() << "✔ Bosch BME280 Initialized - Result of .begin(): 0x" << mySensor.begin() << endl;
 }
 void loopSensorBME280() {
         if (millis() > (timebme280 + BME280_INTERVAL * 1000)) {
-                //Homie.getLogger() << " - BME280 loop:" << endl;
                 timebme280 = millis();
                 float BmeTempC = mySensor.readTempC();
                 float BmeHum = mySensor.readFloatHumidity();
@@ -30,7 +29,7 @@ void loopSensorBME280() {
                 bme280Hum.setProperty("value").send(String(BmeHum));
                 bme280Press.setProperty("value").send(String(BmePa));
                 bme280Alt.setProperty("value").send(String(BmeAltiM));
-                Homie.getLogger() << " - BME280 temp: " << String(BmeTempC) << " humidity: " << String(BmeHum) << " altitude: " << String(BmeAltiM) << " pressure: " << String(BmePa) << endl;
+                Homie.getLogger() << "✔ BME280 temp: " << String(BmeTempC) << " humidity: " << String(BmeHum) << " altitude: " << String(BmeAltiM) << " pressure: " << String(BmePa) << endl;
         }
 }
 #endif

@@ -7,9 +7,9 @@ void loopSensorDHT() {
                 if (temperature > 0 && humidity > 0) {
                         dhtTemp.setProperty("value").send(String(temperature));
                         dhtHum.setProperty("value").send(String(humidity));
-                        Homie.getLogger() << " - DTH temp: " << temperature << " humidity: " << humidity << endl;
+                        Homie.getLogger() << "✔ DTH temp: " << temperature << " humidity: " << humidity << endl;
                 } else {
-                        Homie.getLogger() << " - DTH sensor failed" << endl;
+                        Homie.getLogger() << "✖ DTH sensor failed" << endl;
                 }
         }
 }

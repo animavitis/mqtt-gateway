@@ -4,16 +4,15 @@ void loopIrToMqtt() {
                 //Homie.getLogger() << " - IR loop:" << endl;
                 long data = results.value;
                 irrecv.resume();
-                Homie.getLogger() << " -- Receiving IR signal: " << data << endl;
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
+                        Homie.getLogger() << "✔ Receiving IR signal: " << data << endl;
                         irSwitchNode.setProperty("toMQTT").send(currentCode);
                         storeValue(currentCode);
                 }
         }
 }
 bool irSwitchOnHandler(const HomieRange& range, const String& value) {
-        Homie.getLogger() << " - irSwitchOnHandler(range," << value << "): ";
         arrayMQTT[0] = 0;         //data or address
         arrayMQTT[1] = 1;         // IR protocol: 0:IR_COOLIX,1:IR_NEC,2:IR_Whynter,3:IR_LG,4:IR_Sony,5:IR_DISH,6:IR_RC5,7:IR_Sharp,8:IR_SAMSUNG
         getArrayMQTT(value);
@@ -38,7 +37,7 @@ bool irSwitchOnHandler(const HomieRange& range, const String& value) {
                                 signalSent = true;}
         if (signalSent) {
                 boolean result = irSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
-                if (result) Homie.getLogger() << " IR protocol: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
+                if (result) Homie.getLogger() << "✔ irSwitchOnHandler(range," << value << "): IR protocol: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
         }
         irrecv.enableIRIn();
         return true;

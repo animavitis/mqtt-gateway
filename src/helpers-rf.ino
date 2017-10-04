@@ -2,14 +2,14 @@
 void storeValue(String currentCode){
         long now = millis();
         int o = getMin();
-        Homie.getLogger() << " - storeValue("<<  currentCode << "):" << endl;
+        Homie.getLogger() << "✔ storeValue("<<  currentCode << "):" << endl;
         ReceivedSignal[o][0] = currentCode;
         ReceivedSignal[o][1] = now;
         ReceivedSignal[o][2] = alarmState;
-        Homie.getLogger() << " -- No.: value / timestamp / alarmstate" << endl;
+        Homie.getLogger() << "  No.: value / timestamp / alarmstate" << endl;
         for (int i = 0; i < 8; i++)
         {
-                Homie.getLogger() << " -- " << String(i+1) << ": " << ReceivedSignal[i][0] << " / " << String(ReceivedSignal[i][1]) << " / " << String(ReceivedSignal[i][2]) << endl;
+                Homie.getLogger() << "  " << String(i+1) << ": " << ReceivedSignal[i][0] << " / " << String(ReceivedSignal[i][1]) << " / " << String(ReceivedSignal[i][2]) << endl;
         }
         #ifdef ALARM_ACTIVE
         long currentCodeLong = currentCode.toInt();
@@ -37,17 +37,17 @@ int getMin(){
 }
 //433 & IR duplicate check
 boolean isAduplicate(String value){
-        Homie.getLogger() << " - isAduplicate("<<  value << "): ";
+        Homie.getLogger();
         for (int i = 0; i < 8; i++) {
                 if (ReceivedSignal[i][0] == value) {
                         long now = millis();
                         if (now - ReceivedSignal[i][1].toInt() < TIME_AVOID_DUPLICATE * 1000UL) { // change
-                                Homie.getLogger() << "Duplicate found, don't send" << endl;
+                                Homie.getLogger() << "✖ isAduplicate("<<  value << "): Duplicate found, don't send" << endl;
                                 return true;
                         }
                 }
         }
-        Homie.getLogger() << "not dulicated" << endl;
+        Homie.getLogger() << "✔ isAduplicate("<<  value << "): not dulicated" << endl;
         return false;
 }
 //Get data from MQTT
@@ -66,7 +66,6 @@ void getArrayMQTT(String value) {
 }
 //loop MQTTtoRF
 bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
-        Homie.getLogger() << " - rfSwitchOnHandler(range," << value << "): ";
         arrayMQTT[0] = 0;     //data or address
         arrayMQTT[1] = 350;   //pulseLength
         arrayMQTT[2] = 1;     //protocol
@@ -82,20 +81,17 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
                 delay((TIME_AVOID_DUPLICATE - 1) * 1000UL);
         }
         boolean result = rfSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
-        if (result) Homie.getLogger() << "433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] <<  " sent"<< endl;
+        if (result) Homie.getLogger() << "✔ rfSwitchOnHandler(range," << value << "): 433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] <<  " sent"<< endl;
         return true;
 }
 //loop RFtoMQTT
 void loopRfToMqtt(){
         if (mySwitch.available()) {
                 long data = mySwitch.getReceivedValue();
-                Homie.getLogger() << " -- Receiving 433Mhz value: " << mySwitch.getReceivedValue();
-                Homie.getLogger() << " bitLenght: " << mySwitch.getReceivedBitlength();
-                Homie.getLogger() << " protocol: " << mySwitch.getReceivedProtocol();
-                Homie.getLogger() << " delay: " << mySwitch.getReceivedDelay() << endl;
                 mySwitch.resetAvailable();
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
+                        Homie.getLogger() << "✔ Receiving 433Mhz value: " << mySwitch.getReceivedValue() << " bitLenght: " << mySwitch.getReceivedBitlength() << " protocol: " << mySwitch.getReceivedProtocol() << " delay: " << mySwitch.getReceivedDelay() << endl;
                         rfSwitchNode.setProperty("toMQTT").send(currentCode);
                         storeValue(currentCode);
                 }
