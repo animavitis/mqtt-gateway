@@ -1,11 +1,8 @@
 // ReceivedSignal store
 void storeValue(String currentCode){
         long now = millis();
-        // find oldest value of the buffer
         int o = getMin();
-        Homie.getLogger() << " - storeValue("<<  currentCode << ")" << endl;
-        Homie.getLogger() <<  " -- minimum index: " << o << endl;
-        // replace it by the new one
+        Homie.getLogger() << " - storeValue("<<  currentCode << "):" << endl;
         ReceivedSignal[o][0] = currentCode;
         ReceivedSignal[o][1] = now;
         ReceivedSignal[o][2] = alarmState;
@@ -28,7 +25,7 @@ void storeValue(String currentCode){
 int getMin(){
         int minimum = 0;
         minimum = ReceivedSignal[0][1].toInt();
-        int minindex=0;
+        int minindex = 0;
         for (int i = 0; i < 8; i++)
         {
                 if (ReceivedSignal[i][1].toInt() < minimum) {
@@ -40,19 +37,20 @@ int getMin(){
 }
 //433 & IR duplicate check
 boolean isAduplicate(String value){
-        //    Homie.getLogger() << " - isAduplicate("<<  value << ")" << endl;
+        Homie.getLogger() << " - isAduplicate("<<  value << "): ";
         for (int i = 0; i < 8; i++) {
                 if (ReceivedSignal[i][0] == value) {
                         long now = millis();
                         if (now - ReceivedSignal[i][1].toInt() < TIME_AVOID_DUPLICATE * 1000UL) { // change
-                                Homie.getLogger() << " -- Duplicate found, don't send" << endl;
+                                Homie.getLogger() << "Duplicate found, don't send" << endl;
                                 return true;
                         }
                 }
         }
-        Homie.getLogger() << " -- not dulicated, will be sent" << endl;
+        Homie.getLogger() << "not dulicated" << endl;
         return false;
 }
+//Get data from MQTT
 void getArrayMQTT(String value) {
         int value_len = value.length() + 1;
         char char_array[value_len];
@@ -66,10 +64,9 @@ void getArrayMQTT(String value) {
                 tok = strtok(NULL, ",");
         }
 }
-
+//loop MQTTtoRF
 bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
-        Homie.getLogger() << " - rfSwitchOnHandler(range," << value << ")" << endl;
-        bool result = false;
+        Homie.getLogger() << " - rfSwitchOnHandler(range," << value << "): ";
         arrayMQTT[0] = 0;     //data or address
         arrayMQTT[1] = 350;   //pulseLength
         arrayMQTT[2] = 1;     //protocol
@@ -77,21 +74,21 @@ bool rfSwitchOnHandler(const HomieRange& range, const String& value) {
         mySwitch.setPulseLength(arrayMQTT[1]);
         mySwitch.setProtocol(arrayMQTT[2]);
         if (arrayMQTT[0] > 0)  {
-                Homie.getLogger() << " -- Receiving MQTT > 433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] << endl;
                 if(arrayMQTT[2] != 7) {
                         mySwitch.send(arrayMQTT[0], 24);
                 }else{
                         mySwitch.send(arrayMQTT[0], 32);
                 }
+                delay((TIME_AVOID_DUPLICATE - 1) * 1000UL);
         }
-        result = rfSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
-        if (result) Homie.getLogger() << " -- 433Mhz pulseLength: " << arrayMQTT[1] << "  value: " << arrayMQTT[0] << " sent"<< endl;
+        boolean result = rfSwitchNode.setProperty("code").send(String(arrayMQTT[0]));
+        if (result) Homie.getLogger() << "433Mhz pulseLength: " << arrayMQTT[1] << " protocol: "<< arrayMQTT[2] <<" value: " << arrayMQTT[0] <<  " sent"<< endl;
         return true;
 }
+//loop RFtoMQTT
 void loopRfToMqtt(){
         if (mySwitch.available()) {
                 long data = mySwitch.getReceivedValue();
-                //              Homie.getLogger() << " - 433Mhz loop:" << endl;
                 Homie.getLogger() << " -- Receiving 433Mhz value: " << mySwitch.getReceivedValue();
                 Homie.getLogger() << " bitLenght: " << mySwitch.getReceivedBitlength();
                 Homie.getLogger() << " protocol: " << mySwitch.getReceivedProtocol();
@@ -99,7 +96,6 @@ void loopRfToMqtt(){
                 mySwitch.resetAvailable();
                 String currentCode = String(data);
                 if (!isAduplicate(currentCode) && currentCode!=0) {
-                        Homie.getLogger() << " -- Code: " << currentCode << endl;
                         rfSwitchNode.setProperty("toMQTT").send(currentCode);
                         storeValue(currentCode);
                 }

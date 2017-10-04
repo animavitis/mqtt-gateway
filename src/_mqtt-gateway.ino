@@ -26,11 +26,9 @@ String alarmState = "N/A";
 
 AsyncMqttClient& mqttClient = Homie.getMqttClient();
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-        Homie.getLogger() << " - Recieving toMQTT topic:" << endl;
-        Homie.getLogger() << " -- topic: " << topic << " payload: " << payload << endl;
+        Homie.getLogger() << " - Recieving toMQTT topic: " << topic << " payload: " << payload << endl;
 //        long duplicteMQTT = 0;
         if (!isAduplicate(payload) && payload!=0) {
-                Homie.getLogger() << " -- Code: " << payload << endl;
                 storeValue(payload);
         }
 }
@@ -38,7 +36,7 @@ void onHomieEvent(const HomieEvent& event) {
         switch(event.type) {
         case HomieEventType::MQTT_READY:
                 uint16_t packetIdSub = mqttClient.subscribe("anima/+/+/toMQTT", 0);
-                Homie.getLogger() << " - Subscribing, packetId: " << packetIdSub;
+                Homie.getLogger() << " - Subscribing to \"anima/+/+/toMQTT\", packetId: " << packetIdSub;
                 break;
         }
 }
@@ -126,7 +124,6 @@ void setup() {
         mySwitch.setRepeatTransmit(RF_EMITTER_REPEAT); //increase transmit repeat to avoid lost of rf sendings
         mySwitch.enableReceive(RF_RECEIVER_PIN); // Receiver on pin D3
         #endif
-        // init Homie
         Homie_setFirmware("mqtt-gateway", "1.0.0");
         Homie.setSetupFunction(setupHandler).setLoopFunction(loopHandler);
         Homie.disableResetTrigger();
@@ -163,7 +160,6 @@ void setup() {
         mqttClient.onMessage(onMqttMessage);
         Homie_setBrand("anima");
         Homie.setup();
-
 }
 void loop() {
         Homie.loop();
