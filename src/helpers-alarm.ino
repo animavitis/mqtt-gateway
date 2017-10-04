@@ -7,8 +7,8 @@ void loopAlarm() {
                 setAlarmTimes();
                 alarmInit = true;
         }
-        if (timestamp > (initialAlarmStateTime + ALARM_INTERVAL * 1000UL) || initialAlarmState == 0) {
-                initialAlarmStateTime = timestamp;
+        if (millis() > (initialAlarmStateTime + ALARM_INTERVAL * 1000UL) || initialAlarmState == 0) {
+                initialAlarmStateTime = millis();
                 Homie.getLogger() << "✔ alarm status: " << alarmState << endl;
                 alarmNode.setProperty("state").send(alarmState);
                 initialAlarmState = 1;
@@ -48,35 +48,35 @@ void setAlarmStateVars(String was, String is, String willbe){
 void setAlarmState(String value){
         if (value == "DISARM" || value == "disarmed") {
                 setAlarmStateVars(alarmState, alarmStates[0], alarmStates[0]);
-                lastDisarmedTime = timestamp;
+                lastDisarmedTime = millis();
                 initialAlarmStateTime = millis();
         }
         if (value == "ARM_HOME" || value == "armed_home") {
                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[1]);
-                pendingCounter = timestamp;
+                pendingCounter = millis();
                 pendingStatusSent = false;
-                lastPendingTime =  timestamp;
+                lastPendingTime =  millis();
                 initialAlarmStateTime = millis();
         }
         if (value == "ARM_AWAY" || value == "armed_away") {
                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[2]);
-                pendingCounter = timestamp;
+                pendingCounter = millis();
                 pendingStatusSent = false;
-                lastPendingTime =  timestamp;
+                lastPendingTime =  millis();
                 initialAlarmStateTime = millis();
         }
         if (value == "pending") {
                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[0]);
-                pendingCounter = timestamp;
+                pendingCounter = millis();
                 pendingStatusSent = false;
-                lastPendingTime =  timestamp;
+                lastPendingTime =  millis();
                 initialAlarmStateTime = millis();
         }
         if (value == "triggered") {
                 setAlarmStateVars(alarmState, alarmStates[4], alarmStates[4]);
-                pendingCounter = timestamp;
+                pendingCounter = millis();
                 pendingStatusSent = false;
-                lastPendingTime =  timestamp;
+                lastPendingTime =  millis();
                 initialAlarmStateTime = millis();
         }
         alarmNode.setProperty("state").send(alarmState);
@@ -84,11 +84,11 @@ void setAlarmState(String value){
         Homie.getLogger() << "✔ setAlarmState("<<  value << "): alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
 }
 void setAlarmTimes(){
-        lastArmedHomeTime = timestamp;
-        lastPendingTime = timestamp;
-        lastArmedAwayTime = timestamp;
-        lastDisarmedTime = timestamp;
-        lastTriggeredTime = timestamp;
+        lastArmedHomeTime = millis();
+        lastPendingTime = millis();
+        lastArmedAwayTime = millis();
+        lastDisarmedTime = millis();
+        lastTriggeredTime = millis();
 }
 void disarmCheck(){
         if (alarmState == alarmStates[0]) {  }
@@ -98,7 +98,7 @@ void homeCheck(long currentCodeLong){
                 for (size_t i = 0; i < 10; i++) {
                         if (currentCodeLong == arrayHome[i]) {
                                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[4]);
-                                pendingCounter = timestamp;
+                                pendingCounter = millis();
                                 pendingStatusSent = false;
                                 Homie.getLogger() << "✔ homeCheck(): alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
                                 break;
@@ -112,7 +112,7 @@ void awayCheck(long currentCodeLong){
                 for (size_t i = 0; i < 10; i++) {
                         if (currentCodeLong == arrayAway[i]) {
                                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[4]);
-                                pendingCounter = timestamp;
+                                pendingCounter = millis();
                                 pendingStatusSent = false;
                                 Homie.getLogger() << "✔ awayCheck(): alarmState was: " << alarmStateOld << " is: " << alarmState << " will be: "  << alarmStateTarget << endl;
                                 break;
@@ -123,21 +123,21 @@ void awayCheck(long currentCodeLong){
 }
 void pendingCheck(){
         if (alarmState == alarmStates[3]) {
-                if (timestamp > (pendingCounter + TIME_TO_TRIGGER * 1000UL)) {
+                if (millis() > (pendingCounter + TIME_TO_TRIGGER * 1000UL)) {
                         if (pendingCounter > 0) {
                                 alarmState = alarmStateTarget;
                                 alarmNode.setProperty("state").send(alarmState);
                                 Homie.getLogger() << "✔ pendingCheck(): alarmState was: " << alarmStateOld << " is: " << alarmState << endl;
-                                if(alarmState == alarmStates[0]) {lastDisarmedTime = timestamp;}
-                                if(alarmState == alarmStates[1]) {lastArmedHomeTime = timestamp;}
-                                if(alarmState == alarmStates[2]) {lastArmedAwayTime = timestamp;}
-                                if(alarmState == alarmStates[4]) {lastTriggeredTime = timestamp;}
+                                if(alarmState == alarmStates[0]) {lastDisarmedTime = millis();}
+                                if(alarmState == alarmStates[1]) {lastArmedHomeTime = millis();}
+                                if(alarmState == alarmStates[2]) {lastArmedAwayTime = millis();}
+                                if(alarmState == alarmStates[4]) {lastTriggeredTime = millis();}
                         }
-                        pendingCounter = timestamp;
+                        pendingCounter = millis();
                 } else {
                         if(!pendingStatusSent) {
                                 alarmNode.setProperty("state").send(alarmState);
-                                lastPendingTime = timestamp;
+                                lastPendingTime = millis();
                                 pendingStatusSent = true;
                         }
                 }
@@ -145,8 +145,8 @@ void pendingCheck(){
 }
 void triggeredCheck(){
         if (alarmState == alarmStates[4]) {
-                if (timestamp > (initialAlarmStateTime + (ALARM_INTERVAL * 1000UL)/4) || initialAlarmState == 0) {
-                        initialAlarmStateTime = timestamp;
+                if (millis() > (initialAlarmStateTime + (ALARM_INTERVAL * 1000UL)/4) || initialAlarmState == 0) {
+                        initialAlarmStateTime = millis();
                         alarmNode.setProperty("state").send(alarmState);
                         for (size_t i = 0; i < 10; i++) {
                                 if (arrayTrigger[i] > 0) {

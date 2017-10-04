@@ -1,9 +1,9 @@
 #ifdef DHT_ACTIVE
 void loopSensorDHT() {
-        if (timestamp - DHTlastSent >= DHT_INTERVAL * 1000UL || DHTlastSent == 0) {
+        if (millis() - DHTlastSent >= DHT_INTERVAL * 1000UL || DHTlastSent == 0) {
                 float humidity = dht.readHumidity();
                 float temperature = dht.readTemperature();
-                DHTlastSent = timestamp;
+                DHTlastSent = millis();
                 if (temperature > 0 && humidity > 0) {
                         dhtTemp.setProperty("value").send(String(temperature));
                         dhtHum.setProperty("value").send(String(humidity));
