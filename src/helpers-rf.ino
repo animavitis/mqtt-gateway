@@ -13,11 +13,8 @@ void storeValue(String currentCode){
         }
         #ifdef ALARM_ACTIVE
         long currentCodeLong = currentCode.toInt();
-        disarmCheck(currentCodeLong);
         homeCheck(currentCodeLong);
         awayCheck(currentCodeLong);
-        pendingCheck();
-        triggeredCheck();
         buttonsCheck(currentCodeLong);
         #endif
 }

@@ -13,7 +13,9 @@ void loopAlarm() {
                 alarmNode.setProperty("state").send(alarmState);
                 initialAlarmState = 1;
         }
-
+        disarmCheck();
+        pendingCheck();
+        triggeredCheck();
 }
 
 void readAlarmStateFromSpiffs() {
@@ -47,30 +49,35 @@ void setAlarmState(String value){
         if (value == "DISARM" || value == "disarmed") {
                 setAlarmStateVars(alarmState, alarmStates[0], alarmStates[0]);
                 lastDisarmedTime = timestamp;
+                initialAlarmStateTime = millis();
         }
         if (value == "ARM_HOME" || value == "armed_home") {
                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[1]);
                 pendingCounter = timestamp;
                 pendingStatusSent = false;
                 lastPendingTime =  timestamp;
+                initialAlarmStateTime = millis();
         }
         if (value == "ARM_AWAY" || value == "armed_away") {
                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[2]);
                 pendingCounter = timestamp;
                 pendingStatusSent = false;
                 lastPendingTime =  timestamp;
+                initialAlarmStateTime = millis();
         }
         if (value == "pending") {
                 setAlarmStateVars(alarmState, alarmStates[3], alarmStates[0]);
                 pendingCounter = timestamp;
                 pendingStatusSent = false;
                 lastPendingTime =  timestamp;
+                initialAlarmStateTime = millis();
         }
         if (value == "triggered") {
                 setAlarmStateVars(alarmState, alarmStates[4], alarmStates[4]);
                 pendingCounter = timestamp;
                 pendingStatusSent = false;
                 lastPendingTime =  timestamp;
+                initialAlarmStateTime = millis();
         }
         alarmNode.setProperty("state").send(alarmState);
         writeAlarmStateToSpiffs(alarmStateTarget);
@@ -83,7 +90,7 @@ void setAlarmTimes(){
         lastDisarmedTime = timestamp;
         lastTriggeredTime = timestamp;
 }
-void disarmCheck(long currentCodeLong){
+void disarmCheck(){
         if (alarmState == alarmStates[0]) {  }
 }
 void homeCheck(long currentCodeLong){
@@ -171,8 +178,8 @@ void buttonsCheck(long currentCodeLong){
                         setAlarmState("triggered");
                         break;
                 }
-                                        Homie.getLogger() << "✔ buttonsCheck(" << currentCodeLong << "): AlarmState will be:" << alarmStateTarget << endl;
         }
+        // Homie.getLogger() << "✔ buttonsCheck(" << currentCodeLong << "): AlarmState will be:" << alarmStateTarget << endl;
 }
 
 void getAlarmArrays(){
